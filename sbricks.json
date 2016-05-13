@@ -1,0 +1,35 @@
+[
+  {
+    "addr": "00:07:80:BD:1C:3A",
+    "name": "Test Rig",
+    "channelConfiguration": [
+      "motor",
+      "motor",
+      "motor",
+      "servo"
+    ]
+  },
+  {
+    "addr": "00:07:80:BD:21:A4",
+    "name": "Helicopter",
+    "channelConfiguration": [
+      "motor",
+      "motor",
+      "motor",
+      "motor"
+    ]
+  },
+    {
+    "addr": "00:07:80:BD:23:BE",
+    "name": "Brick 3",
+    "channelConfiguration": [
+      "motor",
+      "motor",
+      "motor",
+      "motor"
+    ]
+  }
+
+
+
+]
