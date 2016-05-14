@@ -40,11 +40,10 @@ class MainWindow(Gtk.Window):
 
         self.read_config()
 
-
-        self.checkConnect = Gtk.CheckButton("Connect")
-        self.checkConnect.set_sensitive(False)
-        self.checkConnect.connect("toggled",self.on_checkbuttonConnect_toggled)
-        self.sbrickBox.pack_start(self.checkConnect, False, True, 0)
+        self.buttonConnect = Gtk.Button.new_with_label("Connect")
+        self.buttonConnect.set_sensitive(False)
+        self.buttonConnect.connect("clicked", self.on_buttonConnect_clicked)
+        self.sbrickBox.pack_start(self.buttonConnect, False, True, 0)
 
         self.currentSBrickChannels = []
         # self.SBrickChannel1 = SBrickChannelBox(0)
@@ -72,29 +71,24 @@ class MainWindow(Gtk.Window):
 
     def on_comboboxSBricks_changed(self, combo):
         text = combo.get_active_text()
-        self.checkConnect.set_sensitive(text != None)
+        self.buttonConnect.set_sensitive(text != None)
 
         for widget in self.currentSBrickChannels:
             self.mainBox.remove(widget)
         self.currentSBrickChannels = []
 
         if(text != None):
-            try:
-                sbrick = self.find_sbrick_config(text)
-                for channelNumber in range(4):
-                    channelBox = None
-                    cc = sbrick["channelConfiguration"][channelNumber]
-                    if cc == 'motor':
-                        channelBox = SBrickMotorChannelBox(channelNumber)
-                    elif cc == 'servo':
-                        channelBox = SBrickServoChannelBox(channelNumber)
-                    self.mainBox.pack_start(channelBox, False, True, 0)
-                    self.currentSBrickChannels.append(channelBox)
-                self.mainBox.show_all()
-            except Exception:
-                traceback.print_exc(file=sys.stdout)
-
-
+            sbrick = self.find_sbrick_config(text)
+            for channelNumber in range(4):
+                channelBox = None
+                cc = sbrick["channelConfiguration"][channelNumber]
+                if cc == 'motor':
+                    channelBox = SBrickMotorChannelBox(channelNumber)
+                elif cc == 'servo':
+                    channelBox = SBrickServoChannelBox(channelNumber)
+                self.mainBox.pack_start(channelBox, False, True, 0)
+                self.currentSBrickChannels.append(channelBox)
+            self.mainBox.show_all()
 
     def find_sbrick_config(self, comboString):
         for sbrick in self.config:
@@ -104,22 +98,49 @@ class MainWindow(Gtk.Window):
         return None
 
 
-    def on_checkbuttonConnect_toggled(self,checkbutton):
-        print("check button clicked")
-
-        # self.buttonScan.set_sensitive(not checkbutton.get_active())
-        self.comboSBrick.set_sensitive(not checkbutton.get_active())
-        if(checkbutton.get_active()):
+    def on_buttonConnect_clicked(self, checkbutton):
+        self.buttonConnect.set_sensitive(False)
+        self.comboSBrick.set_sensitive(False)
+        if(self.sbrickCommunications == None):
+            self.buttonConnect.set_label("Connecting...")
             sbrick = self.find_sbrick_config(self.comboSBrick.get_active_text())
             self.sbrickCommunications = SBrickCommunications(sbrick["addr"])
             self.sbrickCommunications.start()
+            self.sbrickCommunications.connect('sbrick_connected',self.on_sbrick_connected)
+            self.sbrickCommunications.connect('sbrick_disconnected_error',self.on_sbrick_disconnected_error)
+            self.sbrickCommunications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok)
         else:
-            self.sbrickCommunications.stop_all()
+            self.buttonConnect.set_label("Disconnecting...")
+            for widget in self.currentSBrickChannels:
+                widget.set_sbrick(None)
             self.sbrickCommunications.disconnect()
-            self.sbrickCommunications = None
-        for widget in self.currentSBrickChannels:
-            widget.set_sbrick(self.sbrickCommunications)
 
+    def on_sbrick_connected(self, sbrick):
+        self.comboSBrick.set_sensitive(False)
+        for widget in self.currentSBrickChannels:
+            widget.set_sbrick(sbrick)
+        self.buttonConnect.set_label("Disconnect")
+        self.buttonConnect.set_sensitive(True)
+
+
+    def on_sbrick_disconnected_ok(self, sbrick):
+        self.sbrickCommunications = None
+        for widget in self.currentSBrickChannels:
+            widget.set_sbrick(None)
+        self.comboSBrick.set_sensitive(True)
+        self.buttonConnect.set_label("Connect")
+        self.buttonConnect.set_sensitive(True)
+
+    def on_sbrick_disconnected_error(self,sbrick,message):
+        self.sbrickCommunications = None
+        self.comboSBrick.set_sensitive(False)
+        for widget in self.currentSBrickChannels:
+            widget.set_sbrick(None)
+        messagedialog = Gtk.MessageDialog(self, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
+                                         Gtk.ButtonsType.OK,
+                                         "SBrick has disconnected")
+        messagedialog.format_secondary_text(message)
+        messagedialog.run()
 
     def read_config(self):
         fp = open("sbricks.json")

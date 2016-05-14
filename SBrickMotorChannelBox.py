@@ -24,30 +24,40 @@ class SBrickMotorChannelBox(Gtk.Frame):
         self.checkReverse.connect("toggled", self.on_reverse_changed)
         self.vbox.pack_start(self.checkReverse, False, False, 0)
 
-        self.vbox.pack_start(Gtk.Label("Time MS: "), False, False, 0)
+        self.checkTime = Gtk.CheckButton("Time MS:")
+        self.vbox.pack_start(self.checkTime, False, False, 0)
+        self.checkTime.connect("toggled",self.on_time_toggled)
+
         self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
         self.vbox.pack_start(self.spinTime, False, False, 0)
+        self.spinTime.set_sensitive(False)
+
+        self.checkBrake= Gtk.CheckButton("Break Stop")
+        self.vbox.pack_start(self.checkBrake, False, False, 0)
 
         self.switchGo = Gtk.Switch()
         self.switchGo.connect("state-set",self.on_switchGo_state_set)
         self.vbox.pack_start(self.switchGo, False, False, 0)
 
         self.set_sensitive(False)
+        self.on = False
 
 
     def on_switchGo_state_set(self, switch, state):
         if(self.sbrick):
+            self.on = state
             pwm = self.spinPWM.get_value_as_int()
-            timeMs = self.spinTime.get_value_as_int()
+            timeMs = -1
+            if self.checkTime.get_active():
+                timeMs = self.spinTime.get_value_as_int()
             reverse = self.checkReverse.get_active()
+            brakestop = self.checkBrake.get_active()
 
             if(state):
-                print("ON " + str(pwm) + " " + str(timeMs) + " " + str(reverse))
-                self.sbrick.drive(self.channel, pwm,reverse, timeMs)
+                self.sbrick.drive(self.channel, pwm,reverse, timeMs, brakestop)
             else:
-                self.sbrick.stop(self.channel)
-                print("Off")
+                self.sbrick.stop(self.channel,brakestop)
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
@@ -55,8 +65,13 @@ class SBrickMotorChannelBox(Gtk.Frame):
 
     def on_pwm_changed(self, adjustment):
         self.pwm = int(adjustment.get_value())
-        self.sbrick.change_pwm(self.channel,self.pwm)
+        if (self.sbrick and self.on):
+            self.sbrick.change_pwm(self.channel,self.pwm)
 
     def on_reverse_changed(self, checkbox):
         self.reverse = checkbox.get_active()
-        self.sbrick.change_reverse(self.channel,self.reverse)
+        if (self.sbrick and self.on):
+            self.sbrick.change_reverse(self.channel,self.reverse)
+
+    def on_time_toggled(self, checkbox):
+        self.spinTime.set_sensitive(checkbox.get_active())
