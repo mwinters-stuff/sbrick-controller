@@ -1,8 +1,8 @@
 import gi
 
 gi.require_version('Gtk', '3.0')
+# noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import Gtk
-from gi.repository import GLib
 
 
 class SBrickServoChannelBox(Gtk.Frame):
@@ -49,41 +49,51 @@ class SBrickServoChannelBox(Gtk.Frame):
 
         self.vbox.pack_start(Gtk.Label(""), False, True, 0)
 
-        self.vbox.pack_start(Gtk.Label("Time MS: "), False, False, 0)
+        self.checkTime = Gtk.CheckButton("Time MS:")
+        self.vbox.pack_start(self.checkTime, False, False, 0)
+        self.checkTime.connect("toggled", self.on_time_toggled)
+
         self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
         self.vbox.pack_start(self.spinTime, False, False, 0)
+        self.spinTime.set_sensitive(False)
 
-        self.switchGo = Gtk.Switch()
-        self.switchGo.connect("state-set", self.on_switchGo_state_set)
-        self.vbox.pack_start(self.switchGo, False, False, 0)
+        self.buttonGo = Gtk.Button("Move")
+        self.buttonGo.connect("clicked", self.on_switch_go_clicked)
+        self.vbox.pack_start(self.buttonGo, False, False, 0)
 
         self.set_sensitive(False)
         self.pwm = 0
         self.on = False
 
-    def on_switchGo_state_set(self, switch, state):
-        if (self.sbrick):
-            self.on = state
-            timeMs = self.spinTime.get_value_as_int()
+    def on_switch_go_clicked(self, switch):
+        if self.sbrick is not None:
+            self.on = True
+            timems = -1
+            if self.checkTime.get_active():
+                timems = self.spinTime.get_value_as_int()
 
-            if (state):
-                if(self.pwm < 0):
-                    self.sbrick.drive(self.channel, -self.pwm, 1, timeMs)
-                else:
-                    self.sbrick.drive(self.channel, self.pwm, 0, timeMs)
-            else:
+            if self.pwm == 0:
                 self.sbrick.stop(self.channel)
+            elif self.pwm < 0:
+                self.sbrick.drive(self.channel, -self.pwm, 1, timems)
+            else:
+                self.sbrick.drive(self.channel, self.pwm, 0, timems)
 
     def on_comboposition_changed(self, combo):
         tree_iter = combo.get_active_iter()
-        if tree_iter != None:
+        if tree_iter is not None:
             model = combo.get_model()
             self.pwm = model[tree_iter][0]
-            if (self.sbrick and self.on):
+            if self.sbrick and self.on:
                 self.sbrick.change_pwm(self.channel, self.pwm, True)
-
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
-        self.set_sensitive(sbrick != None)
+        self.set_sensitive(sbrick is not None)
+
+    def stopped(self):
+        self.on = False
+
+    def on_time_toggled(self, checkbox):
+        self.spinTime.set_sensitive(checkbox.get_active())

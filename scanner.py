@@ -1,14 +1,17 @@
 from bluepy.btle import Scanner, DefaultDelegate
 
+
+# noinspection PyPep8Naming
 class ScanDelegate(DefaultDelegate):
     def __init__(self):
         DefaultDelegate.__init__(self)
 
-    def handleDiscovery(self, dev, isNewDev, isNewData):
+    def handleDiscovery(self, device, isNewDev, isNewData):
         if isNewDev:
-            print "Discovered device", dev.addr
+            print "Discovered device", device.addr
         elif isNewData:
-            print "Received new data from", dev.addr
+            print "Received new data from", device.addr
+
 
 scanner = Scanner().withDelegate(ScanDelegate())
 devices = scanner.scan(10.0)
