@@ -45,15 +45,15 @@ class SBrickInfoBox(Gtk.Frame):
         self.set_sensitive(sbrick is not None)
         if sbrick is not None:
             self.refresh_all_values()
-            GObject.timeout_add_seconds(10, self.refresh_updating_values)
+            GObject.timeout_add_seconds(5, self.refresh_updating_values)
 
     def refresh_all_values(self):
         self.refresh_updating_values()
         self.refresh_once_values()
 
     def refresh_updating_values(self):
-        print "timer"
         if self.sbrick is not None:
+            print "timer"
             self.store[self.iterInputVoltage][1] = self.none_or_value("%0.2f", self.sbrick.get_voltage())
             self.store[self.iterTemperature][1] = self.none_or_value("%0.2f", self.sbrick.get_temperature())
             self.store[self.iterUpTime][1] = self.none_or_value("%s", self.sbrick.get_uptime())
@@ -61,17 +61,18 @@ class SBrickInfoBox(Gtk.Frame):
         return False
 
     def refresh_once_values(self):
-        self.store[self.iterSBrickID][1] = self.none_or_value("%s", self.sbrick.get_brick_id())
-        self.store[self.iterHardwareVersion][1] = self.none_or_value("%s", self.sbrick.get_hardware_version())
-        self.store[self.iterSoftwareVersion][1] = self.none_or_value("%s", self.sbrick.get_software_version())
-        self.store[self.iterPowerCycles][1] = self.none_or_value("%d", self.sbrick.get_power_cycle_counter())
-        self.store[self.iterWatchdogTimeout][1] = self.none_or_value("%0.2f", self.sbrick.get_watchdog_timeout())
-        self.store[self.iterThermalLimit][1] = self.none_or_value("%0.2f", self.sbrick.get_thermal_limit())
-        self.store[self.iterNeedAuthentication][
-            1] = "%s" % 'Yes' if self.sbrick.get_need_authentication() == True else 'No'
-        self.store[self.iterIsAuthenticated][1] = "%s" % 'Yes' if self.sbrick.get_is_authenticated() == True else 'No'
-        self.store[self.iterAuthenticationTimeout][1] = self.none_or_value("%0.2f",
-                                                                           self.sbrick.get_authentication_timeout())
+        if self.sbrick is not None:
+            self.store[self.iterSBrickID][1] = self.none_or_value("%s", self.sbrick.get_brick_id())
+            self.store[self.iterHardwareVersion][1] = self.none_or_value("%s", self.sbrick.get_hardware_version())
+            self.store[self.iterSoftwareVersion][1] = self.none_or_value("%s", self.sbrick.get_software_version())
+            self.store[self.iterPowerCycles][1] = self.none_or_value("%d", self.sbrick.get_power_cycle_counter())
+            self.store[self.iterWatchdogTimeout][1] = self.none_or_value("%0.2f", self.sbrick.get_watchdog_timeout())
+            self.store[self.iterThermalLimit][1] = self.none_or_value("%0.2f", self.sbrick.get_thermal_limit())
+            self.store[self.iterNeedAuthentication][
+                1] = "%s" % 'Yes' if self.sbrick.get_need_authentication() == True else 'No'
+            self.store[self.iterIsAuthenticated][1] = "%s" % 'Yes' if self.sbrick.get_is_authenticated() == True else 'No'
+            self.store[self.iterAuthenticationTimeout][1] = self.none_or_value("%0.2f",
+                                                                               self.sbrick.get_authentication_timeout())
 
     @staticmethod
     def none_or_value(formatstr, value):

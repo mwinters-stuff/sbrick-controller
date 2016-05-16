@@ -53,14 +53,16 @@ class SBrickChannelDrive:
             self.timesec = time / 1000.0
             self.timestarted = monotonic_time()
 
-    def stop(self, breaked=False):
+    def stop(self, braked=False):
         self.pwm = 0
-        self.braked = breaked
+        self.braked = braked
+        print 'stop', self.channel, self.braked
 
     def get_command_drive(self, cmdin):
         if not self.in_brake_time:
             if not self.braked and (not self.stopped or self.pwm > 0):
                 self.stopped = self.pwm == 0
+                print "drive ",self.channel, self.stopped, self.pwm
                 return cmdin + chr(self.channel) + chr(self.reverse) + chr(self.pwm)
         return cmdin
 
@@ -69,9 +71,10 @@ class SBrickChannelDrive:
             self.pwm = 0
             self.brake_time_sec = 1.0
             self.brake_after_time = False
-            self.braked = False
-            self.in_brake_time = True
-            self.timestarted = monotonic_time()
+            if not self.in_brake_time:
+                self.in_brake_time = True
+                self.timestarted = monotonic_time()
+            print "get_command_brake ", self.channel
             return cmdin + chr(self.channel)
         return cmdin
 
@@ -102,6 +105,7 @@ class SBrickChannelDrive:
                 print "time ", m - self.timestarted, self.timesec
                 self.timems = 0
                 self.timesec = 0
+                self.stopped = False
                 return True
         return False
 
@@ -109,12 +113,16 @@ class SBrickChannelDrive:
     def decrement_brake_timer(self):
         if self.brake_time_sec > 0:
             m = monotonic_time()
-            if m - self.timestarted >= self.brake_time_sec:
+            td = m - self.timestarted
+            # print 'decrement_brake_timer', self.channel, self.brake_time_sec, td
+
+            if td >= self.brake_time_sec:
                 self.stop(False)
-                print "brake time ", m - self.timestarted, self.timesec
+                print "brake time ", td, self.timesec
                 self.timems = 0
                 self.timesec = 0
                 self.brake_time_sec = 0.0
+                self.in_brake_time = False
                 return True
         return False
 
@@ -124,7 +132,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         threading.Thread.__init__(self)
         _IdleObject.__init__(self)
 
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
+        self.drivingLock = threading.RLock()
         self.eventSend = threading.Event()
 
         self.sBrickAddr = sbrick_addr
@@ -141,6 +150,12 @@ class SBrickCommunications(threading.Thread, _IdleObject):
 
     def terminate(self):
         self.stopFlag = True
+
+    def is_driving(self):
+        locked = self.drivingLock.acquire(False)
+        if locked:
+            self.drivingLock.release()
+        return not locked
 
     def run(self):
         try:
@@ -166,8 +181,12 @@ class SBrickCommunications(threading.Thread, _IdleObject):
                 for channel in self.brickChannels:
                     if channel.decrement_run_timer():
                         monotime = 0.0
+                        self.drivingLock.release()
+                        print "stop run normal"
                         self.emit("sbrick_channel_stop", channel.channel)
                     if channel.decrement_brake_timer():
+                        self.drivingLock.release()
+                        print "stop brake timer"
                         monotime = 0.0
                         self.emit("sbrick_channel_stop", channel.channel)
 
@@ -217,6 +236,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
                 drivecmd = channel.get_command_drive(drivecmd)
                 brakecmd = channel.get_command_brake(brakecmd)
             if len(drivecmd) > 1:
+                self.drivingLock.acquire()
                 self.characteristicRemote.write(drivecmd, True)
                 self.print_hex_string("drive sent", drivecmd)
             if len(brakecmd) > 1:
