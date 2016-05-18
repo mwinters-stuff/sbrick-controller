@@ -13,5 +13,11 @@ See the supplied file for the format.
 # Run it
 python main.py
 
+# scanning for ble devices.
+Use scanner.py as root to scan.
+> sudo python scanner.py
 
+
+# Mmmm.
+Use the class SBrickCommunications in SBrickCommunications.py in your own programs.
 
