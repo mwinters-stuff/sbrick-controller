@@ -45,8 +45,10 @@ class SBrickChannelDrive:
             self.reverse = 1
         else:
             self.reverse = 0
+        self.brake_time_sec = 0
         self.braked = False
         self.brake_after_time = brake_after_time
+        self.in_brake_time = False
         self.timems = time
         self.timesec = 0
         if self.timems > 0:
@@ -56,14 +58,14 @@ class SBrickChannelDrive:
     def stop(self, braked=False):
         self.pwm = 0
         self.braked = braked
-        print 'stop', self.channel, self.braked
+        print ('stop', self.channel, self.braked)
 
     def get_command_drive(self, cmdin):
         if not self.in_brake_time:
             if not self.braked and (not self.stopped or self.pwm > 0):
                 self.stopped = self.pwm == 0
-                print "drive ",self.channel, self.stopped, self.pwm
-                return cmdin + chr(self.channel) + chr(self.reverse) + chr(self.pwm)
+                print("drive ", self.channel, self.stopped, self.pwm)
+                return cmdin + bytearray([self.channel,self.reverse,self.pwm])
         return cmdin
 
     def get_command_brake(self, cmdin):
@@ -74,8 +76,8 @@ class SBrickChannelDrive:
             if not self.in_brake_time:
                 self.in_brake_time = True
                 self.timestarted = monotonic_time()
-            print "get_command_brake ", self.channel
-            return cmdin + chr(self.channel)
+            print("get_command_brake ", self.channel)
+            return cmdin + bytearray([self.channel])
         return cmdin
 
     def get_channel(self):
@@ -102,7 +104,7 @@ class SBrickChannelDrive:
             m = monotonic_time()
             if m - self.timestarted >= self.timesec:
                 self.stop(self.brake_after_time)
-                print "time ", m - self.timestarted, self.timesec
+                print("time ", m - self.timestarted, self.timesec)
                 self.timems = 0
                 self.timesec = 0
                 self.stopped = False
@@ -118,7 +120,7 @@ class SBrickChannelDrive:
 
             if td >= self.brake_time_sec:
                 self.stop(False)
-                print "brake time ", td, self.timesec
+                print("brake time ", td, self.timesec)
                 self.timems = 0
                 self.timesec = 0
                 self.brake_time_sec = 0.0
@@ -159,7 +161,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
 
     def run(self):
         try:
-            self.SBrickPeripheral = Peripheral(self.sBrickAddr)
+            self.SBrickPeripheral = Peripheral()
+            self.SBrickPeripheral.connect(self.sBrickAddr)
             service = self.SBrickPeripheral.getServiceByUUID('4dc591b0-857c-41de-b5f1-15abda665b0c')
             characteristics = service.getCharacteristics()
             for characteristic in characteristics:
@@ -182,11 +185,11 @@ class SBrickCommunications(threading.Thread, _IdleObject):
                     if channel.decrement_run_timer():
                         monotime = 0.0
                         self.drivingLock.release()
-                        print "stop run normal"
+                        print("stop run normal")
                         self.emit("sbrick_channel_stop", channel.channel)
                     if channel.decrement_brake_timer():
                         self.drivingLock.release()
-                        print "stop brake timer"
+                        print("stop brake timer")
                         monotime = 0.0
                         self.emit("sbrick_channel_stop", channel.channel)
 
@@ -230,8 +233,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def send_command(self):
         with self.lock:
             # try:
-            drivecmd = chr(0x01)
-            brakecmd = chr(0x00)
+            drivecmd = bytearray([0x01])
+            brakecmd = bytearray([0x00])
             for channel in self.brickChannels:
                 drivecmd = channel.get_command_drive(drivecmd)
                 brakecmd = channel.get_command_brake(brakecmd)
@@ -255,13 +258,13 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def print_hex_string(what, strin):
         out = what + " -> "
         for chrx in strin:
-            out = "%s %0X" % (out, ord(chrx))
-        print out
+            out = "%s %0X" % (out, chrx)
+        print(out)
 
     def get_voltage(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x0f) + chr(0x00))
+                self.characteristicRemote.write(b"\x0f\x00")
                 value = self.characteristicRemote.read()
                 valueint = struct.unpack("<H", value)[0]
                 return (valueint * 0.83875) / 2047.0
@@ -271,7 +274,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_temperature(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x0f) + chr(0x0e))
+                self.characteristicRemote.write(b"\x0f\x0e")
                 value = self.characteristicRemote.read()
                 valueint = struct.unpack("<H", value)[0]
                 return valueint / 118.85795 - 160
@@ -281,7 +284,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_thermal_limit(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x15))
+                self.characteristicRemote.write(b'\x15')
                 value = self.characteristicRemote.read()
                 valueint = struct.unpack("<H", value)[0]
                 return valueint / 118.85795 - 160
@@ -291,7 +294,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_watchdog_timeout(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x0e))
+                self.characteristicRemote.write(b'\x0e')
                 value = self.characteristicRemote.read()
                 return struct.unpack("<B", value)[0] * 0.1
             except BTLEException as ex:
@@ -300,7 +303,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_authentication_timeout(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x09))
+                self.characteristicRemote.write(b'\x09')
                 value = self.characteristicRemote.read()
                 return struct.unpack("<B", value)[0] * 0.1
             except BTLEException as ex:
@@ -309,7 +312,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_power_cycle_counter(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x28))
+                self.characteristicRemote.write(b'\x28')
                 value = self.characteristicRemote.read()
                 return struct.unpack("<I", value)[0]
             except BTLEException as ex:
@@ -318,7 +321,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_uptime(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x29))
+                self.characteristicRemote.write(b'\x29')
                 value = self.characteristicRemote.read()
                 seconds = struct.unpack("<I", value)[0] * 0.1
                 minutes = seconds // 60
@@ -329,30 +332,30 @@ class SBrickCommunications(threading.Thread, _IdleObject):
 
     def get_hardware_version(self):
         try:
-            return self.SBrickPeripheral.readCharacteristic(0x000c)
+            return self.SBrickPeripheral.readCharacteristic(0x000c).decode("utf-8")
         except BTLEException as ex:
             self.emit("sbrick_disconnected_error", ex.message)
 
     def get_software_version(self):
         try:
-            return self.SBrickPeripheral.readCharacteristic(0x000a)
+            return self.SBrickPeripheral.readCharacteristic(0x000a).decode("utf-8")
         except BTLEException as ex:
             self.emit("sbrick_disconnected_error", ex.message)
 
     def get_brick_id(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x0a))
+                self.characteristicRemote.write(b'\x0a')
                 value = self.characteristicRemote.read()
                 return "%0X %0X %0X %0X %0X %0X" % (
-                    ord(value[0]), ord(value[1]), ord(value[2]), ord(value[3]), ord(value[4]), ord(value[5]))
+                    value[0], value[1], value[2], value[3], value[4], value[5])
             except BTLEException as ex:
                 self.emit("sbrick_disconnected_error", ex.message)
 
     def get_need_authentication(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x02))
+                self.characteristicRemote.write(b'\x02')
                 value = self.characteristicRemote.read()
                 return struct.unpack("<B", value)[0] == 1
             except BTLEException as ex:
@@ -361,7 +364,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def get_is_authenticated(self):
         with self.lock:
             try:
-                self.characteristicRemote.write(chr(0x03))
+                self.characteristicRemote.write(b'\x03')
                 value = self.characteristicRemote.read()
                 return struct.unpack("<B", value)[0] == 1
             except BTLEException as ex:

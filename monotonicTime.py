@@ -30,4 +30,4 @@ def monotonic_time():
 
 
 if __name__ == "__main__":
-    print monotonic_time()
+    print(monotonic_time())

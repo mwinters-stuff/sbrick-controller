@@ -53,7 +53,7 @@ class SBrickInfoBox(Gtk.Frame):
 
     def refresh_updating_values(self):
         if self.sbrick is not None:
-            print "timer"
+            print ("timer")
             self.store[self.iterInputVoltage][1] = self.none_or_value("%0.2f", self.sbrick.get_voltage())
             self.store[self.iterTemperature][1] = self.none_or_value("%0.2f", self.sbrick.get_temperature())
             self.store[self.iterUpTime][1] = self.none_or_value("%s", self.sbrick.get_uptime())
