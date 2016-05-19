@@ -94,6 +94,11 @@ class MainWindow(Gtk.Window):
             self.buttonConnect.set_label("Connecting...")
             sbrick = self.find_sbrick_config(self.comboSBrick.get_active_text())
             self.sbrickCommunications = SBrickCommunications(sbrick["addr"])
+            self.sbrickCommunications.connect_to_sbrick()
+
+            if self.sbrickCommunications.need_authentication:
+                pass
+
             self.sbrickCommunications.start()
             self.sbrickCommunications.connect('sbrick_connected', self.on_sbrick_connected)
             self.sbrickCommunications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error)
