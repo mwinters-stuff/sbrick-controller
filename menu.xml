@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="app-menu">
+    <section>
+        <attribute name="label" translatable="yes">SBrick</attribute>
+        <item>
+            <attribute name="action">win.set_owner_password</attribute>
+            <attribute name="label" translatable="yes">Set Owner Password</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.set_guest_password</attribute>
+            <attribute name="label" translatable="yes">Set Guest Password</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.write_owner_password</attribute>
+            <attribute name="label" translatable="yes">Write Owner Password</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.write_guest_password</attribute>
+            <attribute name="label" translatable="yes">Write Guest Password</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.clear_owner_password</attribute>
+            <attribute name="label" translatable="yes">Clear Owner Password</attribute>
+        </item>
+        <item>
+            <attribute name="action">win.clear_guest_password</attribute>
+            <attribute name="label" translatable="yes">Clear Guest Password</attribute>
+        </item>
+
+    </section>
+
+    <section>
+      <item>
+        <attribute name="action">app.about</attribute>
+        <attribute name="label" translatable="yes">_About</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.quit</attribute>
+        <attribute name="label" translatable="yes">_Quit</attribute>
+        <attribute name="accel">&lt;Primary&gt;q</attribute>
+    </item>
+    </section>
+  </menu>
+
+
+</interface>

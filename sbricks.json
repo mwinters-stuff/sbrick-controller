@@ -2,6 +2,7 @@
   {
     "addr": "00:07:80:BD:1C:3A",
     "name": "Test Rig",
+    "ownerPassword": "abcdefgh",
     "channelConfiguration": [
       "motor",
       "motor",

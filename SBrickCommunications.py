@@ -398,7 +398,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             try:
                 self.authenticated = False
                 cmd = bytearray([0x05,0x00])
-                cmd.append(bytearray.fromhex(password))
+                for ch in password:
+                    cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
                 self.authenticated = True
             except BTLEException as ex:
@@ -409,21 +410,22 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             try:
                 self.authenticated = False
                 cmd = bytearray([0x05,0x01])
-                cmd.append(bytearray.fromhex(password))
+                for ch in password:
+                    cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
                 self.authenticated = True
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
 
 
-    def clear_owner_password(self,guest):
+    def clear_owner_password(self):
         with self.lock:
             try:
                 self.characteristicRemote.write(b'\x06\x00')
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
 
-    def clear_guest_password(self,guest):
+    def clear_guest_password(self):
         with self.lock:
             try:
                 self.characteristicRemote.write(b'\x06\x01')
@@ -435,7 +437,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         with self.lock:
             try:
                 cmd = bytearray([0x07,0x00])
-                cmd.append(bytearray.fromhex(password))
+                for ch in password:
+                    cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
@@ -444,7 +447,8 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         with self.lock:
             try:
                 cmd = bytearray([0x07,0x01])
-                cmd.append(bytearray.fromhex(password))
+                for ch in password:
+                    cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
