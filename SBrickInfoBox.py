@@ -37,7 +37,11 @@ class SBrickInfoBox(Gtk.Frame):
         column = Gtk.TreeViewColumn("Value", renderer, text=1)
         self.listView.append_column(column)
 
-        self.add(self.listView)
+        self.scrollTree = Gtk.ScrolledWindow()
+        self.scrollTree.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scrollTree.add(self.listView)
+
+        self.add(self.scrollTree)
         self.set_sensitive(False)
 
     def set_sbrick(self, sbrick):
