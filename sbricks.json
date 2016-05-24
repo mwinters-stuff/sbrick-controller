@@ -4,31 +4,171 @@
     "name": "Test Rig",
     "ownerPassword": "abcdefgh",
     "channelConfiguration": [
-      "motor",
-      "motor",
-      "motor",
-      "servo"
-    ]
+      {
+        "id": "lm1",
+        "name": "Large Left Motor",
+        "type": "motor"
+      },
+      {
+        "id": "lm2",
+        "name": "Large Right Motor",
+        "type": "motor"
+      },
+      {
+        "id": "xlm1",
+        "name": "Xtra Large Motor",
+        "type": "motor"
+      },
+      {
+        "id": "s1",
+        "name": "Lego Servo",
+        "type": "servo"
+      }
+    ],
+    "sequence":{
+      "delaystart": 3,
+      "actions":[
+        {
+          "channel": "lm1",
+          "function":"on",
+          "pwm": 150
+
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 7
+        },
+        {
+          "function":"time",
+          "time": 3000
+        },
+        {
+          "function": "off",
+          "brake": "on",
+          "channel": "lm1"
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 6
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 5
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 4
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 3
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 2
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 1
+        },
+        {
+          "function":"time",
+          "time": 1000
+        },
+        {
+          "function":"on",
+          "channel": "s1",
+          "position": 0
+        },
+        {
+          "function":"end",
+          "repeat":"False"
+        }
+      ]
+    }
   },
   {
     "addr": "00:07:80:BD:21:A4",
     "name": "Helicopter",
     "channelConfiguration": [
-      "motor",
-      "motor",
-      "motor",
-      "motor"
+      {
+        "id": "x4",
+        "name": "Motor X4",
+        "type": "motor"
+      },
+      {
+        "id": "x3",
+        "name": "Motor X3",
+        "type": "motor"
+      },
+      {
+        "id": "x2",
+        "name": "Motor X2",
+        "type": "motor"
+      },
+      {
+        "id": "x1",
+        "name": "Motor X1",
+        "type": "motor"
+      }
     ]
   },
     {
     "addr": "00:07:80:BD:23:BE",
     "name": "Brick 3",
     "channelConfiguration": [
-      "motor",
-      "motor",
-      "motor",
-      "motor"
-    ]
+       {
+        "id": "x4",
+        "name": "Motor X4",
+        "type": "motor"
+      },
+      {
+        "id": "x3",
+        "name": "Motor X3",
+        "type": "motor"
+      },
+      {
+        "id": "x2",
+        "name": "Motor X2",
+        "type": "motor"
+      },
+      {
+        "id": "x1",
+        "name": "Motor X1",
+        "type": "motor"
+      }
+   ]
   }
 
 

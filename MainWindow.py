@@ -128,11 +128,12 @@ class MainWindow(Gtk.ApplicationWindow):
 
             for channelNumber in range(4):
                 channel_box = None
-                cc = sbrick["channelConfiguration"][channelNumber]
+                sb = sbrick["channelConfiguration"][channelNumber]
+                cc = sb["type"]
                 if cc == 'motor':
-                    channel_box = SBrickMotorChannelBox(channelNumber)
+                    channel_box = SBrickMotorChannelBox(channelNumber, sb)
                 elif cc == 'servo':
-                    channel_box = SBrickServoChannelBox(channelNumber)
+                    channel_box = SBrickServoChannelBox(channelNumber,sb)
                 self.mainBox.pack_start(channel_box, False, True, 0)
                 self.currentSBrickChannels.append(channel_box)
             self.mainBox.show_all()

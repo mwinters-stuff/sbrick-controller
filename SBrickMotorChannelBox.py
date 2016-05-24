@@ -9,11 +9,12 @@ from gi.repository import Gtk
 
 
 class SBrickMotorChannelBox(Gtk.Frame):
-    def __init__(self, channel):
+    def __init__(self, channel, sbrickChannel):
         Gtk.Frame.__init__(self)
+        self.sbrickChannel = sbrickChannel
         self.channel = channel
         self.sbrick = None
-        self.set_label("Channel: " + str(channel + 1))
+        self.set_label("Channel: %d - %s" %((channel + 1) ,self.sbrickChannel["name"]))
 
         self.vbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.add(self.vbox)
