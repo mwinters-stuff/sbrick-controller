@@ -57,7 +57,7 @@ class SBrickInfoBox(Gtk.Frame):
 
     def refresh_updating_values(self):
         if self.sbrick is not None:
-            print ("timer")
+            # print ("timer")
             self.store[self.iterInputVoltage][1] = self.none_or_value("%0.2f", self.sbrick.get_voltage())
             self.store[self.iterTemperature][1] = self.none_or_value("%0.2f", self.sbrick.get_temperature())
             self.store[self.iterUpTime][1] = self.none_or_value("%s", self.sbrick.get_uptime())
@@ -74,7 +74,8 @@ class SBrickInfoBox(Gtk.Frame):
             self.store[self.iterThermalLimit][1] = self.none_or_value("%0.2f", self.sbrick.get_thermal_limit())
             self.store[self.iterNeedAuthentication][
                 1] = "%s" % 'Yes' if self.sbrick.get_need_authentication() == True else 'No'
-            self.store[self.iterIsAuthenticated][1] = "%s" % 'Yes' if self.sbrick.get_is_authenticated() == True else 'No'
+            self.store[self.iterIsAuthenticated][1] = "%s" % 'Yes' \
+                if self.sbrick.get_is_authenticated() == True else 'No'
             self.store[self.iterAuthenticationTimeout][1] = self.none_or_value("%0.2f",
                                                                                self.sbrick.get_authentication_timeout())
 

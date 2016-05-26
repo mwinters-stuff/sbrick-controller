@@ -6,12 +6,12 @@ from gi.repository import Gtk
 
 
 class SBrickServoChannelBox(Gtk.Frame):
-    def __init__(self, channel, sbrickChannel):
+    def __init__(self, channel, sbrick_channel):
         Gtk.Frame.__init__(self)
-        self.sbrickChannel = sbrickChannel
+        self.sbrickChannel = sbrick_channel
         self.channel = channel
         self.sbrick = None
-        self.set_label("Channel: %d - %s" %((channel + 1) ,self.sbrickChannel["name"]))
+        self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
         self.vbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.add(self.vbox)

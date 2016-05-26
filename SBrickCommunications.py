@@ -58,14 +58,14 @@ class SBrickChannelDrive:
     def stop(self, braked=False):
         self.pwm = 0
         self.braked = braked
-        print ('stop', self.channel, self.braked)
+        print('stop', self.channel, self.braked)
 
     def get_command_drive(self, cmdin):
         if not self.in_brake_time:
             if not self.braked and (not self.stopped or self.pwm > 0):
                 self.stopped = self.pwm == 0
                 print("drive ", self.channel, self.stopped, self.pwm)
-                return cmdin + bytearray([self.channel,self.reverse,self.pwm])
+                return cmdin + bytearray([self.channel, self.reverse, self.pwm])
         return cmdin
 
     def get_command_brake(self, cmdin):
@@ -110,7 +110,6 @@ class SBrickChannelDrive:
                 self.stopped = False
                 return True
         return False
-
 
     def decrement_brake_timer(self):
         if self.brake_time_sec > 0:
@@ -180,7 +179,6 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             self.authenticated = not self.need_authentication
         except BTLEException as ex:
             self.emit("sbrick_disconnected_error", ex.message)
-
 
     def run(self):
         if not self.SBrickPeripheral:
@@ -397,7 +395,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         with self.lock:
             try:
                 self.authenticated = False
-                cmd = bytearray([0x05,0x00])
+                cmd = bytearray([0x05, 0x00])
                 for ch in password:
                     cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
@@ -409,14 +407,13 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         with self.lock:
             try:
                 self.authenticated = False
-                cmd = bytearray([0x05,0x01])
+                cmd = bytearray([0x05, 0x01])
                 for ch in password:
                     cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
                 self.authenticated = True
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
-
 
     def clear_owner_password(self):
         with self.lock:
@@ -432,11 +429,10 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
 
-
     def set_owner_password(self, password):
         with self.lock:
             try:
-                cmd = bytearray([0x07,0x00])
+                cmd = bytearray([0x07, 0x00])
                 for ch in password:
                     cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
@@ -446,13 +442,12 @@ class SBrickCommunications(threading.Thread, _IdleObject):
     def set_guest_password(self, password):
         with self.lock:
             try:
-                cmd = bytearray([0x07,0x01])
+                cmd = bytearray([0x07, 0x01])
                 for ch in password:
                     cmd.append(ord(ch))
                 self.characteristicRemote.write(cmd)
             except BTLEException as ex:
                 self.emit("sbrick_error", ex.message)
-
 
     def set_authentication_timeout(self, seconds):
         with self.lock:
