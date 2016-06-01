@@ -25,152 +25,163 @@
         "type": "servo"
       }
     ],
-    "sequence":{
-      "delaystart": 3,
-      "actions":[
-        {
-          "channel": "lm1",
-          "function":"on",
-          "pwm": 150
+        "functions":[
+      {
+        "group": "Rotors",
+        "functions": [
+          {
+            "label": "Spin",
+            "channel": "xlm1",
+            "pwm": "255",
+            "reverse":"true",
+            "time": "-1"
+          },
+          {
+            "label": "Stop",
+            "channel": "xlm1",
+            "off": "free"
+          }
 
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 7
-        },
-        {
-          "function":"time",
-          "time": 3000
-        },
-        {
-          "function": "off",
-          "brake": "on",
-          "channel": "lm1"
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 6
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 5
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 4
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 3
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 2
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 1
-        },
-        {
-          "function":"time",
-          "time": 1000
-        },
-        {
-          "function":"on",
-          "channel": "s1",
-          "position": 0
-        },
-        {
-          "function":"end",
-          "repeat":"False"
-        }
-      ]
-    }
+        ]
+      },
+      {
+        "group": "Hook",
+        "functions": [
+          {
+            "label": "Hook Down",
+            "channel": "lm1",
+            "pwm": "150",
+            "reverse": "true",
+            "off": "brake",
+            "time": "3000"
+          },
+          {
+            "label": "Hook Up",
+            "channel": "lm1",
+            "pwm": "150",
+            "off": "brake",
+            "time": "3000"
+          }
+        ]
+      }
+    ]
   },
   {
     "addr": "00:07:80:BD:21:A4",
     "name": "Helicopter",
     "channelConfiguration": [
       {
-        "id": "x4",
-        "name": "Motor X4",
+        "id": "rotors",
+        "name": "Rotors",
         "type": "motor"
       },
       {
-        "id": "x3",
-        "name": "Motor X3",
+        "id": "hook",
+        "name": "Hook",
         "type": "motor"
       },
       {
-        "id": "x2",
-        "name": "Motor X2",
+        "id": "ramp",
+        "name": "Rear Ramp",
         "type": "motor"
       },
       {
-        "id": "x1",
-        "name": "Motor X1",
+        "id": "bay",
+        "name": "Bay Doors",
+        "type": "motor"
+      }
+    ],
+    "functions":[
+      {
+        "group": "Rotors",
+        "functions": [
+          {
+            "label": "Spin",
+            "channel": "rotors",
+            "pwm": "255",
+            "reverse":"true",
+            "time": "-1"
+          },
+          {
+            "label": "Stop",
+            "channel": "rotors",
+            "off": "brake"
+          }
+
+        ]
+      },
+      {
+        "group": "Hook",
+        "functions": [
+          {
+            "label": "Hook Down",
+            "channel": "hook",
+            "pwm": "150",
+            "reverse": "true",
+            "off": "brake",
+            "time": "3000"
+          },
+          {
+            "label": "Hook Up",
+            "channel": "hook",
+            "pwm": "150",
+            "off": "brake",
+            "time": "3000"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "addr": "00:07:80:BD:23:BE",
+    "name": "Loader",
+    "channelConfiguration": [
+      {
+        "id": "drive",
+        "name": "Drive",
+        "type": "motor"
+      },
+      {
+        "id": "bucket",
+        "name": "Bucket Tip",
+        "type": "motor"
+      },
+      {
+        "id": "steer",
+        "name": "Steering",
+        "type": "servo"
+      },
+      {
+        "id": "raise",
+        "name": "Bucket Raise",
         "type": "motor"
       }
     ]
   },
-    {
-    "addr": "00:07:80:BD:23:BE",
-    "name": "Brick 3",
+  {
+    "addr": "00:07:80:bd:23:60",
+    "name": "Crane",
     "channelConfiguration": [
-       {
-        "id": "x4",
-        "name": "Motor X4",
+      {
+        "id": "drive",
+        "name": "Drive",
         "type": "motor"
       },
       {
-        "id": "x3",
-        "name": "Motor X3",
+        "id": "rotate",
+        "name": "Rotate Body",
         "type": "motor"
       },
       {
-        "id": "x2",
-        "name": "Motor X2",
+        "id": "lift",
+        "name": "Lift",
         "type": "motor"
       },
       {
-        "id": "x1",
-        "name": "Motor X1",
+        "id": "boom",
+        "name": "Boom",
         "type": "motor"
       }
-   ]
+    ]
   }
-
-
-
 ]

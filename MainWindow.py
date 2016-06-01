@@ -23,6 +23,7 @@ class MainWindow(Gtk.ApplicationWindow):
         if self.config is not None:
             for sbrick in self.config:
                 page = SBrickBox(sbrick)
+                page.connect("show_message",self.on_show_message)
                 self.notebook.append_page(page, Gtk.Label(sbrick["name"]))
 
         self.actions = []
@@ -103,3 +104,14 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def on_clear_guest_password(self, action, param):
         self.get_showing_sbrick_box().clear_guest_password()
+
+    def show_message(self,title,message,mainmessage):
+        messagedialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
+                                          Gtk.ButtonsType.OK,
+                                          "[%s] %s" % (title,mainmessage))
+        messagedialog.format_secondary_text(message)
+        messagedialog.run()
+        messagedialog.destroy()
+
+    def on_show_message(self,widget,title,message,mainmessage):
+        self.show_message(title,message,mainmessage)

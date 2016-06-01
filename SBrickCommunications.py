@@ -3,6 +3,7 @@ import gi
 from monotonicTime import monotonic_time
 import struct
 from bluepy.btle import Peripheral, BTLEException
+import six
 
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
@@ -38,6 +39,13 @@ class SBrickChannelDrive:
         self.stopped = True
         self.in_brake_time = False
         self.brake_time_sec = 0.0
+        self.config_id = channel
+
+    def set_config_id(self, config_id):
+        self.config_id = config_id
+
+    def is_config_id(self, config_id):
+        return self.config_id == config_id
 
     def drive(self, pwm, reverse, time, brake_after_time=False):
         self.pwm = int(pwm)
@@ -150,6 +158,11 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         self.characteristicRemote = None
         self.need_authentication = False
         self.authenticated = False
+        self.channel_config_ids = dict()
+
+    def set_channel_config_id(self, channel, config_id):
+        self.channel_config_ids[config_id] = channel
+        self.brickChannels[channel].set_config_id(config_id)
 
     def terminate(self):
         self.stopFlag = True
@@ -212,16 +225,25 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         except BTLEException as ex:
             self.emit("sbrick_disconnected_error", ex.message)
 
+    def get_channel(self, channel):
+        if isinstance(channel,six.integer_types):
+            return self.brickChannels[channel]
+        if isinstance(channel,six.string_types):
+            return self.brickChannels[self.channel_config_ids[channel]]
+        return None
+
     def drive(self, channel, pwm, reverse, time, brake_after_time=False):
         with self.lock:
-            if channel < 4:
-                self.brickChannels[channel].drive(pwm, reverse, time, brake_after_time)
+            ch = self.get_channel(channel)
+            if ch is not None:
+                ch.drive(pwm, reverse, time, brake_after_time)
             self.eventSend.set()
 
-    def stop(self, channel, breaked=False):
+    def stop(self, channel, braked=False):
         with self.lock:
-            if channel < 4:
-                self.brickChannels[channel].stop(breaked)
+            ch = self.get_channel(channel)
+            if ch is not None:
+                ch.stop(braked)
             self.eventSend.set()
 
     def stop_all(self):
@@ -232,14 +254,16 @@ class SBrickCommunications(threading.Thread, _IdleObject):
 
     def change_pwm(self, channel, pwm, change_reverse=False):
         with self.lock:
-            if channel < 4:
-                self.brickChannels[channel].set_pwm(pwm, change_reverse)
+            ch = self.get_channel(channel)
+            if ch is not None:
+                ch.set_pwm(pwm, change_reverse)
             self.eventSend.set()
 
     def change_reverse(self, channel, reverse):
         with self.lock:
-            if channel < 4:
-                self.brickChannels[channel].set_reverse(reverse)
+            ch = self.get_channel(channel)
+            if ch is not None:
+                ch.set_reverse(reverse)
             self.eventSend.set()
 
     def send_command(self):

@@ -1,5 +1,7 @@
 import gi
 
+from SBrickFunctionsBox import SBrickFunctionsBox
+
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import Gtk, GLib, Gio, GObject
@@ -27,8 +29,14 @@ class SBrickBox(Gtk.Box):
 
         self.pack_start(self.topBox, False, True, 0)
 
+        self.notebook = Gtk.Notebook()
+        self.pack_start(self.notebook, True, True, 0)
+        self.notebook.set_scrollable(True)
+
         self.SBrickInfoBox = SBrickInfoBox()
-        self.pack_start(self.SBrickInfoBox, True, True, 0)
+
+        self.notebook.append_page(self.SBrickInfoBox, Gtk.Label("Information"))
+
         self.password_guest = None
         self.password_owner = None
         self.currentSBrickChannels = []
@@ -39,6 +47,9 @@ class SBrickBox(Gtk.Box):
         if "guestPassword" in self.sbrickConfiguration:
             self.password_guest = self.sbrickConfiguration["guestPassword"]
 
+        self.channelBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=5)
+        self.notebook.append_page(self.channelBox, Gtk.Label("Control"))
+
         for channelNumber in range(4):
             channel_box = None
             sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
@@ -47,8 +58,13 @@ class SBrickBox(Gtk.Box):
                 channel_box = SBrickMotorChannelBox(channelNumber, sb)
             elif cc == 'servo':
                 channel_box = SBrickServoChannelBox(channelNumber, sb)
-            self.pack_start(channel_box, False, True, 0)
+            self.channelBox.pack_start(channel_box, False, True, 0)
             self.currentSBrickChannels.append(channel_box)
+
+        self.SBrickFunctionsBox  = None
+        if "functions" in self.sbrickConfiguration:
+            self.SBrickFunctionsBox  = SBrickFunctionsBox(self.sbrickConfiguration["functions"])
+            self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))
 
         self.show_all()
 
@@ -91,6 +107,10 @@ class SBrickBox(Gtk.Box):
             self.sbrickCommunications = SBrickCommunications(self.sbrickConfiguration["addr"])
             self.sbrickCommunications.connect_to_sbrick()
 
+            for channelNumber in range(4):
+                sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
+                self.sbrickCommunications.set_channel_config_id(channelNumber,sb["id"])
+
             if self.sbrickCommunications.need_authentication:
                 if self.password_owner is not None:
                     self.sbrickCommunications.authenticate_owner(self.password_owner)
@@ -103,25 +123,27 @@ class SBrickBox(Gtk.Box):
 
         else:
             self.buttonConnect.set_label("Disconnecting...")
-            for widget in self.currentSBrickChannels:
-                widget.set_sbrick(None)
-            self.SBrickInfoBox.set_sbrick(None)
+            self.set_child_communications(None)
+
             self.sbrickCommunications.disconnect()
 
-    def on_sbrick_connected(self, sbrick):
-        self.SBrickInfoBox.set_sbrick(sbrick)
+    def set_child_communications(self, sbrick):
+        self.sbrickCommunications = sbrick
         for widget in self.currentSBrickChannels:
             widget.set_sbrick(sbrick)
+        self.SBrickInfoBox.set_sbrick(sbrick)
+        if self.SBrickFunctionsBox is not None:
+            self.SBrickFunctionsBox.set_sbrick(sbrick)
+
+    def on_sbrick_connected(self, sbrick):
+        self.set_child_communications(sbrick)
         self.buttonConnect.set_label("Disconnect")
         self.buttonConnect.set_sensitive(True)
         # for act in self.actions_connected:
         #     act.set_enabled(True)
 
     def on_sbrick_disconnected_ok(self, sbrick):
-        self.sbrickCommunications = None
-        self.SBrickInfoBox.set_sbrick(None)
-        for widget in self.currentSBrickChannels:
-            widget.set_sbrick(None)
+        self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
 
@@ -129,21 +151,12 @@ class SBrickBox(Gtk.Box):
         #     act.set_enabled(False)
 
     def on_sbrick_disconnected_error(self, sbrick, message):
-        self.sbrickCommunications = None
-        self.SBrickInfoBox.set_sbrick(None)
-        for widget in self.currentSBrickChannels:
-            widget.set_sbrick(None)
-        messagedialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                                          Gtk.ButtonsType.OK,
-                                          "SBrick has disconnected")
-        messagedialog.format_secondary_text(message)
-        messagedialog.run()
-        messagedialog.destroy()
-        self.comboSBrick.set_sensitive(True)
+        self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
-        # for act in self.actions_connected:
-        #     act.set_enabled(False)
+
+        self.emit("show_message", sbrick.sBrickAddr, message,"SBrick has disconnected")
+        self.set_child_communications(None)
 
     def on_sbrick_channel_stop(self, sbrick, channel):
         self.currentSBrickChannels[channel].stopped()
@@ -152,3 +165,7 @@ class SBrickBox(Gtk.Box):
 GObject.type_register(SBrickBox)
 GObject.signal_new("sbrick_connected", SBrickBox, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
 GObject.signal_new("sbrick_disconnected", SBrickBox, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
+GObject.signal_new("show_message", SBrickBox, GObject.SignalFlags.RUN_LAST,
+                   GObject.TYPE_NONE,[GObject.TYPE_STRING,
+                                      GObject.TYPE_STRING,
+                                      GObject.TYPE_STRING])
