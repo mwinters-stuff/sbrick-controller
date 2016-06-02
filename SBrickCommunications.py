@@ -1,6 +1,6 @@
 import threading
 import gi
-from monotonicTime import monotonic_time
+import monotonic
 import struct
 from bluepy.btle import Peripheral, BTLEException
 import six
@@ -61,7 +61,7 @@ class SBrickChannelDrive:
         self.timesec = 0
         if self.timems > 0:
             self.timesec = time / 1000.0
-            self.timestarted = monotonic_time()
+            self.timestarted = monotonic.monotonic()
 
     def stop(self, braked=False):
         self.pwm = 0
@@ -83,7 +83,7 @@ class SBrickChannelDrive:
             self.brake_after_time = False
             if not self.in_brake_time:
                 self.in_brake_time = True
-                self.timestarted = monotonic_time()
+                self.timestarted = monotonic.monotonic()
             print("get_command_brake ", self.channel)
             return cmdin + bytearray([self.channel])
         return cmdin
@@ -109,7 +109,7 @@ class SBrickChannelDrive:
 
     def decrement_run_timer(self):
         if self.timems > 0:
-            m = monotonic_time()
+            m = monotonic.monotonic()
             if m - self.timestarted >= self.timesec:
                 self.stop(self.brake_after_time)
                 print("time ", m - self.timestarted, self.timesec)
@@ -121,7 +121,7 @@ class SBrickChannelDrive:
 
     def decrement_brake_timer(self):
         if self.brake_time_sec > 0:
-            m = monotonic_time()
+            m = monotonic.monotonic()
             td = m - self.timestarted
             # print 'decrement_brake_timer', self.channel, self.brake_time_sec, td
 
@@ -146,6 +146,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
         self.eventSend = threading.Event()
 
         self.sBrickAddr = sbrick_addr
+        self.owner_password = None
 
         self.brickChannels = [
             SBrickChannelDrive(0, self.eventSend),
@@ -173,8 +174,14 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             self.drivingLock.release()
         return not locked
 
-    def connect_to_sbrick(self):
+    def connect_to_sbrick(self, owner_password):
+        self.owner_password = owner_password
+        self.start()
+
+    def run(self):
         try:
+            monotime = 0.0
+
             self.SBrickPeripheral = Peripheral()
             self.SBrickPeripheral.connect(self.sBrickAddr)
             service = self.SBrickPeripheral.getServiceByUUID('4dc591b0-857c-41de-b5f1-15abda665b0c')
@@ -190,20 +197,16 @@ class SBrickCommunications(threading.Thread, _IdleObject):
 
             self.need_authentication = self.get_need_authentication()
             self.authenticated = not self.need_authentication
-        except BTLEException as ex:
-            self.emit("sbrick_disconnected_error", ex.message)
+            if self.need_authentication:
+                if self.password_owner is not None:
+                    self.authenticate_owner(self.password_owner)
 
-    def run(self):
-        if not self.SBrickPeripheral:
-            return
-        try:
-            monotime = 0.0
 
             while not self.stopFlag:
                 if self.authenticated:
-                    if monotonic_time() - monotime >= 0.1:
+                    if monotonic.monotonic() - monotime >= 0.1:
                         self.send_command()
-                        monotime = monotonic_time()
+                        monotime = monotonic.monotonic()
                     self.eventSend.wait(0.01)
                     for channel in self.brickChannels:
                         if channel.decrement_run_timer():

@@ -8,7 +8,7 @@ from gi.repository import Gtk, GLib, Gio, GObject
 
 from SBrickInfoBox import SBrickInfoBox
 from SBrickMotorChannelBox import SBrickMotorChannelBox
-from FakeSBrickCommunications import SBrickCommunications
+from SBrickCommunications import SBrickCommunications
 from SBrickServoChannelBox import SBrickServoChannelBox
 
 
@@ -115,21 +115,17 @@ class SBrickBox(Gtk.Box):
         if self.sbrickCommunications is None:
             self.buttonConnect.set_label("Connecting...")
             self.sbrickCommunications = SBrickCommunications(self.sbrickConfiguration["addr"])
-            self.sbrickCommunications.connect_to_sbrick()
-
             for channelNumber in range(4):
                 sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
                 self.sbrickCommunications.set_channel_config_id(channelNumber,sb["id"])
 
-            if self.sbrickCommunications.need_authentication:
-                if self.password_owner is not None:
-                    self.sbrickCommunications.authenticate_owner(self.password_owner)
 
-            self.sbrickCommunications.start()
             self.sbrickCommunications.connect('sbrick_connected', self.on_sbrick_connected)
             self.sbrickCommunications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error)
             self.sbrickCommunications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok)
             self.sbrickCommunications.connect('sbrick_channel_stop', self.on_sbrick_channel_stop)
+
+            self.sbrickCommunications.connect_to_sbrick(self.password_owner)
 
         else:
             self.buttonConnect.set_label("Disconnecting...")
