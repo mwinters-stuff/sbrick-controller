@@ -8,7 +8,7 @@ from gi.repository import Gtk, GLib, Gio, GObject
 
 from SBrickInfoBox import SBrickInfoBox
 from SBrickMotorChannelBox import SBrickMotorChannelBox
-from SBrickCommunications import SBrickCommunications
+from FakeSBrickCommunications import SBrickCommunications
 from SBrickServoChannelBox import SBrickServoChannelBox
 
 
@@ -26,6 +26,12 @@ class SBrickBox(Gtk.Box):
 
         self.buttonConnect.connect("clicked", self.on_button_connect_clicked)
         self.topBox.pack_start(self.buttonConnect, False, True, 0)
+
+        self.buttonEStop = Gtk.Button.new_with_label("!!!STOP!!!")
+
+        self.buttonEStop.connect("clicked", self.on_button_estop_clicked)
+        self.topBox.pack_start(self.buttonEStop, False, True, 0)
+        self.buttonEStop.set_sensitive(False)
 
         self.pack_start(self.topBox, False, True, 0)
 
@@ -60,6 +66,10 @@ class SBrickBox(Gtk.Box):
                 channel_box = SBrickServoChannelBox(channelNumber, sb)
             self.channelBox.pack_start(channel_box, False, True, 0)
             self.currentSBrickChannels.append(channel_box)
+
+        self.buttonChannelConfigure = Gtk.Button.new_with_label("Configure")
+        self.buttonChannelConfigure.connect("clicked", self.on_button_channel_configure_clicked)
+        self.channelBox.pack_start(self.buttonChannelConfigure, False, True, 0)
 
         self.SBrickFunctionsBox  = None
         if "functions" in self.sbrickConfiguration:
@@ -123,9 +133,12 @@ class SBrickBox(Gtk.Box):
 
         else:
             self.buttonConnect.set_label("Disconnecting...")
+            self.sbrickCommunications.disconnect()
             self.set_child_communications(None)
 
-            self.sbrickCommunications.disconnect()
+    def on_button_estop_clicked(self,widget):
+        if self.sbrickCommunications is not None:
+            self.sbrickCommunications.stop_all()
 
     def set_child_communications(self, sbrick):
         self.sbrickCommunications = sbrick
@@ -139,6 +152,8 @@ class SBrickBox(Gtk.Box):
         self.set_child_communications(sbrick)
         self.buttonConnect.set_label("Disconnect")
         self.buttonConnect.set_sensitive(True)
+        self.buttonEStop.set_sensitive(True)
+        self.buttonChannelConfigure.set_sensitive(False)
         # for act in self.actions_connected:
         #     act.set_enabled(True)
 
@@ -146,6 +161,8 @@ class SBrickBox(Gtk.Box):
         self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
+        self.buttonEStop.set_sensitive(False)
+        self.buttonChannelConfigure.set_sensitive(True)
 
         # for act in self.actions_connected:
         #     act.set_enabled(False)
@@ -154,12 +171,17 @@ class SBrickBox(Gtk.Box):
         self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
+        self.buttonEStop.set_sensitive(False)
+        self.buttonChannelConfigure.set_sensitive(True)
 
         self.emit("show_message", sbrick.sBrickAddr, message,"SBrick has disconnected")
         self.set_child_communications(None)
 
     def on_sbrick_channel_stop(self, sbrick, channel):
         self.currentSBrickChannels[channel].stopped()
+
+    def on_button_channel_configure_clicked(self,widget):
+        pass
 
 
 GObject.type_register(SBrickBox)

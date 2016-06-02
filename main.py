@@ -9,9 +9,11 @@ gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import Gtk, GLib, Gio
 
-class Application(Gtk.Application):
+class SBrickApplication(Gtk.Application):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, application_id="nz.winters.sbrickapp",
+        # super(*args, **kwargs)
+        Gtk.Application.__init__(self,*args,
+                       application_id="nz.winters.sbrickapp",
                         flags=Gio.ApplicationFlags.NON_UNIQUE,
                          **kwargs)
         self.window = None
@@ -62,5 +64,5 @@ class Application(Gtk.Application):
         about_dialog.present()
 
 if __name__ == "__main__":
-    app = Application()
+    app = SBrickApplication()
     app.run(sys.argv)

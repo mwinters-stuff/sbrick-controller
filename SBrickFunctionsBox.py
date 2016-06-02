@@ -19,6 +19,7 @@ class FunctionGroupBox(Gtk.Frame):
             self.hbox.pack_start(button, False, True, 0)
 
         self.sbrick = None
+        self.set_sensitive(False)
 
     def on_button_clicked(self, widget):
         function = widget.brick_function
@@ -48,6 +49,7 @@ class FunctionGroupBox(Gtk.Frame):
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
+        self.set_sensitive(sbrick is not None)
 
 
 class SBrickFunctionsBox(Gtk.Box):

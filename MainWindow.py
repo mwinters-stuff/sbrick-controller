@@ -12,7 +12,7 @@ class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         self.config = kwargs.pop("config", None)
 
-        super().__init__(*args, **kwargs)
+        Gtk.ApplicationWindow.__init__(self,*args, **kwargs)
         self.set_default_size(800, 480)
         self.connect("delete-event", self.on_delete_window)
 
