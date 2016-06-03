@@ -13,6 +13,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.config = kwargs.pop("config", None)
 
         Gtk.ApplicationWindow.__init__(self,*args, **kwargs)
+
         self.set_default_size(800, 480)
         self.connect("delete-event", self.on_delete_window)
 
@@ -67,6 +68,10 @@ class MainWindow(Gtk.ApplicationWindow):
         self.actions.append(action)
         self.actions_connected.append(action)
 
+        action = Gio.SimpleAction.new_stateful("toggle_fullscreen", None, GLib.Variant.new_boolean(False))
+        action.connect("change-state",self.on_toggle_fullscreen);
+        self.add_action(action)
+
         for act in self.actions_connected:
             act.set_enabled(False)
 
@@ -115,3 +120,10 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def on_show_message(self,widget,title,message,mainmessage):
         self.show_message(title,message,mainmessage)
+
+    def on_toggle_fullscreen(self, action, value):
+        action.set_state(value)
+        if(value.get_boolean()):
+            self.fullscreen()
+        else:
+            self.unfullscreen()
