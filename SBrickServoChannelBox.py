@@ -13,10 +13,11 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.sbrick = None
         self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
-        self.vbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.vbox = Gtk.FlowBox()#self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.add(self.vbox)
 
-        self.vbox.pack_start(Gtk.Label("Angle: "), False, False, 0)
+        # self.vbox.pack_start(Gtk.Label("Angle: "), False, False, 0)
+        self.vbox.add(Gtk.Label("Angle: "))
 
         self.positionButtons = []
         self.pwmStore = Gtk.ListStore(int, str)
@@ -44,24 +45,28 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.comboPosition.pack_start(renderer_text, True)
         self.comboPosition.add_attribute(renderer_text, "text", 1)
 
-        self.vbox.pack_start(self.comboPosition, False, False, 0)
+        # self.vbox.pack_start(self.comboPosition, False, False, 0)
+        self.vbox.add(self.comboPosition)
         self.comboPosition.connect("changed", self.on_comboposition_changed)
         self.comboPosition.set_active(7)
 
-        self.vbox.pack_start(Gtk.Label(""), False, True, 0)
+        # self.vbox.pack_start(Gtk.Label(""), False, True, 0)
 
         self.checkTime = Gtk.CheckButton("Time MS:")
-        self.vbox.pack_start(self.checkTime, False, False, 0)
+        # self.vbox.pack_start(self.checkTime, False, False, 0)
+        self.vbox.add(self.checkTime)
         self.checkTime.connect("toggled", self.on_time_toggled)
 
         self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
-        self.vbox.pack_start(self.spinTime, False, False, 0)
+        # self.vbox.pack_start(self.spinTime, False, False, 0)
+        self.vbox.add(self.spinTime)
         self.spinTime.set_sensitive(False)
 
         self.buttonGo = Gtk.Button("Move")
         self.buttonGo.connect("clicked", self.on_switch_go_clicked)
-        self.vbox.pack_start(self.buttonGo, False, False, 0)
+        self.vbox.add(self.buttonGo)
+        # self.vbox.pack_start(self.buttonGo, False, False, 0)
 
         self.set_sensitive(False)
         self.pwm = 0

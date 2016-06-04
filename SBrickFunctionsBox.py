@@ -10,6 +10,7 @@ class FunctionGroupBox(Gtk.Frame):
         self.set_label(configuration["group"])
 
         self.hbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.hbox.set_border_width(2)
         self.add(self.hbox)
 
         for func in configuration["functions"]:

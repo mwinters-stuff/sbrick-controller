@@ -11,39 +11,48 @@ from gi.repository import Gtk
 class SBrickMotorChannelBox(Gtk.Frame):
     def __init__(self, channel, sbrick_channel):
         Gtk.Frame.__init__(self)
+
         self.sbrickChannel = sbrick_channel
         self.channel = channel
         self.sbrick = None
         self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
-        self.vbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.vbox = Gtk.FlowBox()#, orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+        self.vbox.set_border_width(2)
         self.add(self.vbox)
 
-        self.vbox.pack_start(Gtk.Label("PWM: "), False, False, 0)
+        # self.vbox.pack_start(Gtk.Label("PWM: "), True, False, 0)
+        self.vbox.add(Gtk.Label("PWM: "))
         self.pwmAdjustment = Gtk.Adjustment(255, 0, 255, 5, 10, 0.0)
         self.spinPWM = Gtk.SpinButton.new(self.pwmAdjustment, 5, 0)
-        self.vbox.pack_start(self.spinPWM, False, False, 0)
+        # self.vbox.pack_start(self.spinPWM, True, False, 0)
+        self.vbox.add(self.spinPWM)
         self.pwmAdjustment.connect("value-changed", self.on_pwm_changed)
 
         self.checkReverse = Gtk.CheckButton("Reverse")
         self.checkReverse.connect("toggled", self.on_reverse_changed)
-        self.vbox.pack_start(self.checkReverse, False, False, 0)
+        self.vbox.add(self.checkReverse)
+        # self.vbox.pack_start(self.checkReverse, True, False, 0)
 
         self.checkTime = Gtk.CheckButton("Time MS:")
-        self.vbox.pack_start(self.checkTime, False, False, 0)
+        # self.vbox.pack_start(self.checkTime, True, False, 0)
+        self.vbox.add(self.checkTime)
         self.checkTime.connect("toggled", self.on_time_toggled)
 
         self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
-        self.vbox.pack_start(self.spinTime, False, False, 0)
+        # self.vbox.pack_start(self.spinTime, True, False, 0)
+        self.vbox.add(self.spinTime)
         self.spinTime.set_sensitive(False)
 
         self.checkBrake = Gtk.CheckButton("Break Stop")
-        self.vbox.pack_start(self.checkBrake, False, False, 0)
+        # self.vbox.pack_start(self.checkBrake, True, False, 0)
+        self.vbox.add(self.checkBrake)
 
         self.buttonGo = Gtk.Button("Start")
         self.buttonGo.connect("clicked", self.on_switch_go_clicked)
-        self.vbox.pack_start(self.buttonGo, False, False, 0)
+        # self.vbox.pack_start(self.buttonGo, True, False, 0)
+        self.vbox.add(self.buttonGo)
 
         self.set_sensitive(False)
         self.on = False
