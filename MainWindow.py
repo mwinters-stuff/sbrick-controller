@@ -14,7 +14,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
         Gtk.ApplicationWindow.__init__(self,*args, **kwargs)
 
-        self.set_default_size(800, 480)
+        # self.set_default_size(800, 480)
+        self.resize(800, 480)
         self.connect("delete-event", self.on_delete_window)
 
         self.notebook = Gtk.Notebook()
@@ -69,7 +70,11 @@ class MainWindow(Gtk.ApplicationWindow):
         self.actions_connected.append(action)
 
         action = Gio.SimpleAction.new_stateful("toggle_fullscreen", None, GLib.Variant.new_boolean(False))
-        action.connect("change-state",self.on_toggle_fullscreen);
+        action.connect("change-state", self.on_toggle_fullscreen)
+        self.add_action(action)
+
+        action = Gio.SimpleAction.new("show_size", None)
+        action.connect("activate", self.on_show_size)
         self.add_action(action)
 
         for act in self.actions_connected:
@@ -127,3 +132,6 @@ class MainWindow(Gtk.ApplicationWindow):
             self.fullscreen()
         else:
             self.unfullscreen()
+
+    def on_show_size(self, action, param):
+        print("%d %d" % (self.get_allocated_width(), self.get_allocated_height()))

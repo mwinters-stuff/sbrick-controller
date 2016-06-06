@@ -39,7 +39,8 @@ class SBrickInfoBox(Gtk.Frame):
 
         self.scrollTree = Gtk.ScrolledWindow()
         self.scrollTree.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.scrollTree.add(self.listView)
+        self.scrollTree.add_with_viewport(self.listView)
+        self.scrollTree.set_min_content_height(100)
 
         self.add(self.scrollTree)
         self.set_sensitive(False)

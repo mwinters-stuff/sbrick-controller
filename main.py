@@ -3,6 +3,7 @@ import gi
 import sys
 
 import simplejson as json
+
 from MainWindow import MainWindow
 
 gi.require_version('Gtk', '3.0')
@@ -35,6 +36,10 @@ class SBrickApplication(Gtk.Application):
         action.connect("activate", self.on_quit)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new("save_configuration", None)
+        action.connect("activate", self.on_save_configuration)
+        self.add_action(action)
+
         builder = Gtk.Builder.new_from_file("menu.xml",)
         self.set_app_menu(builder.get_object("app-menu"))
 
@@ -62,6 +67,13 @@ class SBrickApplication(Gtk.Application):
     def on_about(self, action, param):
         about_dialog = Gtk.AboutDialog(transient_for=self.window, modal=True)
         about_dialog.present()
+
+    def on_save_configuration(self, saction, param):
+        fp = open(self.configFile, mode="w+")
+        try:
+            json.dump(self.config, fp, indent=2)
+        finally:
+            fp.close()
 
 if __name__ == "__main__":
     app = SBrickApplication()

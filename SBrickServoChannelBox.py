@@ -14,28 +14,32 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
         self.vbox = Gtk.FlowBox()#self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.vbox.set_max_children_per_line(5)
+        self.vbox.set_min_children_per_line(5)
+        self.vbox.set_selection_mode(Gtk.SelectionMode.NONE)
+
         self.add(self.vbox)
 
         # self.vbox.pack_start(Gtk.Label("Angle: "), False, False, 0)
         self.vbox.add(Gtk.Label("Angle: "))
 
         self.positionButtons = []
-        self.pwmStore = Gtk.ListStore(int, str)
-        self.pwmStore.append([-255, "-90.0"])
-        self.pwmStore.append([-223, "-77.1"])
-        self.pwmStore.append([-190, "-64.3"])
-        self.pwmStore.append([-161, "-51.4"])
-        self.pwmStore.append([-126, "-38.6"])
-        self.pwmStore.append([-97, "-25.7"])
-        self.pwmStore.append([-67, "-12.9"])
-        self.pwmStore.append([0, "0.00"])
-        self.pwmStore.append([67, "12.9"])
-        self.pwmStore.append([97, "25.7"])
-        self.pwmStore.append([126, "38.6"])
-        self.pwmStore.append([161, "51.4"])
-        self.pwmStore.append([190, "64.3"])
-        self.pwmStore.append([223, "77.1"])
-        self.pwmStore.append([255, "90.0"])
+        self.pwmStore = Gtk.ListStore(str, str)
+        self.pwmStore.append(["-255", "-90.0"])
+        self.pwmStore.append(["-223", "-77.1"])
+        self.pwmStore.append(["-190", "-64.3"])
+        self.pwmStore.append(["-161", "-51.4"])
+        self.pwmStore.append(["-126", "-38.6"])
+        self.pwmStore.append(["-97", "-25.7"])
+        self.pwmStore.append(["-67", "-12.9"])
+        self.pwmStore.append(["0", "0.00"])
+        self.pwmStore.append(["67", "12.9"])
+        self.pwmStore.append(["97", "25.7"])
+        self.pwmStore.append(["126", "38.6"])
+        self.pwmStore.append(["161", "51.4"])
+        self.pwmStore.append(["190", "64.3"])
+        self.pwmStore.append(["223", "77.1"])
+        self.pwmStore.append(["255", "90.0"])
 
         self.comboPosition = Gtk.ComboBoxText()
         self.comboPosition.set_id_column(0)
@@ -48,7 +52,7 @@ class SBrickServoChannelBox(Gtk.Frame):
         # self.vbox.pack_start(self.comboPosition, False, False, 0)
         self.vbox.add(self.comboPosition)
         self.comboPosition.connect("changed", self.on_comboposition_changed)
-        self.comboPosition.set_active(7)
+        self.comboPosition.set_active_id("0")
 
         # self.vbox.pack_start(Gtk.Label(""), False, True, 0)
 
@@ -81,18 +85,13 @@ class SBrickServoChannelBox(Gtk.Frame):
 
             if self.pwm == 0:
                 self.sbrick.stop(self.channel)
-            elif self.pwm < 0:
-                self.sbrick.drive(self.channel, -self.pwm, 1, timems)
             else:
                 self.sbrick.drive(self.channel, self.pwm, 0, timems)
 
     def on_comboposition_changed(self, combo):
-        tree_iter = combo.get_active_iter()
-        if tree_iter is not None:
-            model = combo.get_model()
-            self.pwm = model[tree_iter][0]
-            if self.sbrick and self.on:
-                self.sbrick.change_pwm(self.channel, self.pwm, True)
+        self.pwm = int(combo.get_active_id())
+        if self.sbrick and self.on:
+            self.sbrick.change_pwm(self.channel, self.pwm, True)
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick

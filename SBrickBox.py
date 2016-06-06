@@ -1,5 +1,6 @@
 import gi
 
+from ChannelConfigureDialog import ChannelConfigureDialog
 from SBrickFunctionsBox import SBrickFunctionsBox
 
 gi.require_version('Gtk', '3.0')
@@ -14,10 +15,10 @@ from SBrickServoChannelBox import SBrickServoChannelBox
 
 class SBrickBox(Gtk.Box):
     def __init__(self, sbrick_configuration):
-        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=10)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=3, margin=0)
         self.sbrickConfiguration = sbrick_configuration
 
-        self.topBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6, margin=5)
+        self.topBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, margin=0)
 
         self.topBox.pack_start(Gtk.Label("SBrick: %s" % self.sbrickConfiguration["name"]), False, True, 0)
         self.topBox.pack_start(Gtk.Label("Address: %s" % self.sbrickConfiguration["addr"]), True, False, 0)
@@ -56,20 +57,7 @@ class SBrickBox(Gtk.Box):
         self.channelBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=5)
         self.notebook.append_page(self.channelBox, Gtk.Label("Control"))
 
-        for channelNumber in range(4):
-            channel_box = None
-            sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
-            cc = sb["type"]
-            if cc == 'motor':
-                channel_box = SBrickMotorChannelBox(channelNumber, sb)
-            elif cc == 'servo':
-                channel_box = SBrickServoChannelBox(channelNumber, sb)
-            self.channelBox.pack_start(channel_box, False, True, 0)
-            self.currentSBrickChannels.append(channel_box)
-
-        self.buttonChannelConfigure = Gtk.Button.new_with_label("Configure")
-        self.buttonChannelConfigure.connect("clicked", self.on_button_channel_configure_clicked)
-        self.channelBox.pack_start(self.buttonChannelConfigure, False, True, 0)
+        self.show_channels()
 
         self.SBrickFunctionsBox  = None
         if "functions" in self.sbrickConfiguration:
@@ -177,7 +165,33 @@ class SBrickBox(Gtk.Box):
         self.currentSBrickChannels[channel].stopped()
 
     def on_button_channel_configure_clicked(self,widget):
-        pass
+        dialog = ChannelConfigureDialog(self.get_toplevel(), self.sbrickConfiguration)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.show_channels()
+        dialog.destroy()
+
+    def show_channels(self):
+        children = self.channelBox.get_children()
+        for child in children:
+            self.channelBox.remove(child)
+
+        for channelNumber in range(4):
+            channel_box = None
+            sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
+            cc = sb["type"]
+            if cc == 'motor':
+                channel_box = SBrickMotorChannelBox(channelNumber, sb)
+            elif cc == 'servo':
+                channel_box = SBrickServoChannelBox(channelNumber, sb)
+            self.channelBox.pack_start(channel_box, False, False, 0)
+            self.currentSBrickChannels.append(channel_box)
+
+        self.buttonChannelConfigure = Gtk.Button.new_with_label("Configure")
+        self.buttonChannelConfigure.connect("clicked", self.on_button_channel_configure_clicked)
+        self.channelBox.pack_start(self.buttonChannelConfigure, False, True, 0)
+
+        self.channelBox.show_all()
 
 
 GObject.type_register(SBrickBox)

@@ -19,6 +19,9 @@ class SBrickMotorChannelBox(Gtk.Frame):
 
         self.vbox = Gtk.FlowBox()#, orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
         self.vbox.set_border_width(2)
+        self.vbox.set_max_children_per_line(7)
+        self.vbox.set_min_children_per_line(7)
+        self.vbox.set_selection_mode(Gtk.SelectionMode.NONE)
         self.add(self.vbox)
 
         # self.vbox.pack_start(Gtk.Label("PWM: "), True, False, 0)
