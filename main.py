@@ -36,8 +36,16 @@ class SBrickApplication(Gtk.Application):
         action.connect("activate", self.on_quit)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new("open_configuration", None)
+        action.connect("activate", self.on_open_configuration)
+        self.add_action(action)
+
         action = Gio.SimpleAction.new("save_configuration", None)
         action.connect("activate", self.on_save_configuration)
+        self.add_action(action)
+
+        action = Gio.SimpleAction.new("save_as_configuration", None)
+        action.connect("activate", self.on_save_as_configuration)
         self.add_action(action)
 
         builder = Gtk.Builder.new_from_file("menu.xml",)
@@ -66,14 +74,68 @@ class SBrickApplication(Gtk.Application):
 
     def on_about(self, action, param):
         about_dialog = Gtk.AboutDialog(transient_for=self.window, modal=True)
-        about_dialog.present()
+        about_dialog.run()
+        about_dialog.destroy()
 
-    def on_save_configuration(self, saction, param):
-        fp = open(self.configFile, mode="w+")
+    def on_save_configuration(self, action, param):
+        self.save_configuration(self.configFile)
+
+    def save_configuration(self, filename):
+        fp = open(filename, mode="w+")
         try:
             json.dump(self.config, fp, indent=2)
         finally:
             fp.close()
+
+    def on_save_as_configuration(self, action, param):
+        dialog = Gtk.FileChooserDialog("Save Configuration As...", self.window,
+                                       Gtk.FileChooserAction.SAVE,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        dialog.set_filename(self.configFile)
+
+        self.add_filters(dialog)
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.configFile = dialog.get_filename()
+            self.save_configuration(self.configFile)
+
+        dialog.destroy()
+
+    def on_open_configuration(self, action, param):
+        dialog = Gtk.FileChooserDialog("Open Configuration...", self.window,
+                                       Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        dialog.set_filename(self.configFile)
+
+        self.add_filters(dialog)
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.configFile = dialog.get_filename()
+            self.read_config()
+            if self.window:
+                self.window.close()
+            self.window = MainWindow(application=self, title="SBrick Controller", config=self.config)
+            self.window.present()
+
+            # self.save_configuration(self.configFile)
+
+        dialog.destroy()
+
+    def add_filters(self, dialog):
+        filter_text = Gtk.FileFilter()
+        filter_text.set_name("JSON files")
+        filter_text.add_pattern("*.json")
+        dialog.add_filter(filter_text)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name("Any files")
+        filter_any.add_pattern("*")
+        dialog.add_filter(filter_any)
 
 if __name__ == "__main__":
     app = SBrickApplication()

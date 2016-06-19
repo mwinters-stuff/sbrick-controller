@@ -72,7 +72,7 @@ class SBrickChannelDrive:
         if not self.in_brake_time:
             if not self.braked and (not self.stopped or self.pwm > 0):
                 self.stopped = self.pwm == 0
-                print("drive ", self.channel, self.stopped, self.pwm)
+                print("drive ", self.channel, self.stopped, self.reverse, self.pwm)
                 return cmdin + bytearray([self.channel, self.reverse, self.pwm])
         return cmdin
 
@@ -95,11 +95,10 @@ class SBrickChannelDrive:
         if pwm < 0:
             if change_reverse:
                 self.reverse = 1
-            self.pwm = -pwm
         else:
             if change_reverse:
                 self.reverse = 0
-            self.pwm = pwm
+        self.pwm = abs(pwm)
 
     def set_reverse(self, reverse):
         if reverse:

@@ -5,9 +5,9 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-class ChannelConfigureDialog(Gtk.Dialog):
+class SBrickConfigureDialog(Gtk.Dialog):
     def __init__(self, parent, sbrickConfiguration):
-        Gtk.Dialog.__init__(self, "Configure SBrick Channels", parent, 0,
+        Gtk.Dialog.__init__(self, "Configure SBrick", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
@@ -22,10 +22,30 @@ class ChannelConfigureDialog(Gtk.Dialog):
 
         self.get_content_area().add(self.content)
 
+        hbox = Gtk.FlowBox()
+        hbox.set_max_children_per_line(2)
+        hbox.set_min_children_per_line(2)
+        hbox.set_selection_mode(Gtk.SelectionMode.NONE)
+
+        hbox.add(Gtk.Label("Name:"))
+        self.edit_brick_name = Gtk.Entry()
+        self.edit_brick_name.set_max_length(20)
+        hbox.add(self.edit_brick_name)
+
+        hbox.add(Gtk.Label("Address:"))
+        self.edit_brick_address = Gtk.Entry()
+        self.edit_brick_address.set_max_length(17)
+        hbox.add(self.edit_brick_address)
+
+        self.content.pack_start(hbox, False, True, 0)
+
         self.channel1_id_edit, self.channel1_name_edit, self.channel1_combo_type = self.create_channel_box(1)
         self.channel2_id_edit, self.channel2_name_edit, self.channel2_combo_type = self.create_channel_box(2)
         self.channel3_id_edit, self.channel3_name_edit, self.channel3_combo_type = self.create_channel_box(3)
         self.channel4_id_edit, self.channel4_name_edit, self.channel4_combo_type = self.create_channel_box(4)
+
+        self.edit_brick_name.set_text(self.sbrickConfiguration["name"])
+        self.edit_brick_address.set_text(self.sbrickConfiguration["addr"])
 
         self.set_from_config(0, self.channel1_id_edit, self.channel1_name_edit, self.channel1_combo_type)
         self.set_from_config(1, self.channel2_id_edit, self.channel2_name_edit, self.channel2_combo_type)
@@ -37,6 +57,8 @@ class ChannelConfigureDialog(Gtk.Dialog):
 
     def on_response(self, dialog, response_id):
         if response_id == Gtk.ResponseType.OK:
+            self.sbrickConfiguration["name"] = self.edit_brick_name.get_text()
+            self.sbrickConfiguration["addr"] = self.edit_brick_address.get_text()
             self.set_to_config(0, self.channel1_id_edit, self.channel1_name_edit, self.channel1_combo_type)
             self.set_to_config(1, self.channel2_id_edit, self.channel2_name_edit, self.channel2_combo_type)
             self.set_to_config(2, self.channel3_id_edit, self.channel3_name_edit, self.channel3_combo_type)

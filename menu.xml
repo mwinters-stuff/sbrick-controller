@@ -14,16 +14,16 @@
       <section>
           <attribute name="label" translatable="yes">Configuration</attribute>
           <item>
+              <attribute name="action">app.open_configuration</attribute>
+              <attribute name="label" translatable="yes">Open</attribute>
+          </item>
+          <item>
               <attribute name="action">app.save_configuration</attribute>
               <attribute name="label" translatable="yes">Save</attribute>
           </item>
           <item>
               <attribute name="action">app.save_as_configuration</attribute>
               <attribute name="label" translatable="yes">Save As</attribute>
-          </item>
-          <item>
-              <attribute name="action">app.load_configuration</attribute>
-              <attribute name="label" translatable="yes">Load</attribute>
           </item>
 
       </section>

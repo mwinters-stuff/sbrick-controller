@@ -1,26 +1,38 @@
 import gi
 
+from FunctionConfigureDialog import FunctionConfigureDialog
+
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import Gtk, GLib, Gio, GObject
 
 class FunctionGroupBox(Gtk.Frame):
-    def __init__(self, configuration):
+    def __init__(self, configuration, channels):
         Gtk.Frame.__init__(self)
         self.set_label(configuration["group"])
+        self.configuration = configuration
+        self.channels = channels
+
+        hbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        hbox.set_homogeneous(False)
+        self.add(hbox)
+
+        self.button_settings = Gtk.Button.new()
+        self.button_settings.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_PREFERENCES, Gtk.IconSize.BUTTON))
+        self.button_settings.connect("clicked", self.on_settings_clicked)
+        hbox.pack_start(self.button_settings, False, True, 0)
 
         self.hbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.hbox.set_border_width(2)
-        self.add(self.hbox)
+        hbox.pack_start(self.hbox, True, True, 0)
 
         for func in configuration["functions"]:
             button = Gtk.Button(func["label"])
             button.connect("clicked", self.on_button_clicked)
             button.brick_function = func
-            self.hbox.pack_start(button, False, True, 0)
+            self.hbox.pack_start(button, True, True, 0)
 
         self.sbrick = None
-        self.set_sensitive(False)
+        self.hbox.set_sensitive(False)
 
     def on_button_clicked(self, widget):
         function = widget.brick_function
@@ -48,20 +60,40 @@ class FunctionGroupBox(Gtk.Frame):
             pwm = 0
             self.sbrick.stop(channelName,off == "brake")
 
+    def on_settings_clicked(self, widget):
+        dialog = FunctionConfigureDialog(self.get_toplevel(), self.configuration, self.channels)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            ch = self.hbox.get_children()
+            for c in ch:
+                self.hbox.remove(c)
+                c.destroy()
+            for func in self.configuration["functions"]:
+                button = Gtk.Button(func["label"])
+                button.connect("clicked", self.on_button_clicked)
+                button.brick_function = func
+                self.hbox.pack_start(button, True, True, 0)
+            self.hbox.show_all()
+
+        dialog.destroy()
+
+
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
-        self.set_sensitive(sbrick is not None)
+        # self.button_settings.set_sensitive(sbrick is None)
+        self.hbox.set_sensitive(sbrick is not None)
 
 
 class SBrickFunctionsBox(Gtk.Box):
-    def __init__(self, configuration):
+    def __init__(self, configuration, channels):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=10)
         self.configuration = configuration
+        self.channels = channels
         self.sbrick = None
         self.functionGroups = []
 
         for group in configuration:
-            fg = FunctionGroupBox(group)
+            fg = FunctionGroupBox(group, channels)
             self.pack_start(fg, False, True, 0)
             self.functionGroups.append(fg)
 
@@ -69,6 +101,3 @@ class SBrickFunctionsBox(Gtk.Box):
         self.sbrick = sbrick
         for fg in self.functionGroups:
             fg.set_sbrick(sbrick)
-
-
-

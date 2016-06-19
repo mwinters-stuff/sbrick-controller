@@ -1,6 +1,6 @@
 import gi
 
-from ChannelConfigureDialog import ChannelConfigureDialog
+from SBrickConfigureDialog import SBrickConfigureDialog
 from SBrickFunctionsBox import SBrickFunctionsBox
 
 gi.require_version('Gtk', '3.0')
@@ -20,8 +20,16 @@ class SBrickBox(Gtk.Box):
 
         self.topBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, margin=0)
 
-        self.topBox.pack_start(Gtk.Label("SBrick: %s" % self.sbrickConfiguration["name"]), False, True, 0)
-        self.topBox.pack_start(Gtk.Label("Address: %s" % self.sbrickConfiguration["addr"]), True, False, 0)
+        # self.buttonSettings = Gtk.Button.new_with_label("Settings")
+        self.buttonSettings = Gtk.Button.new_with_label("Settings")
+        self.buttonSettings.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_PREFERENCES, Gtk.IconSize.BUTTON))
+        self.buttonSettings.connect("clicked", self.on_button_settings_clicked)
+        self.topBox.pack_start(self.buttonSettings, False, True, 0)
+
+        self.labelBrickName = Gtk.Label("SBrick: %s" % self.sbrickConfiguration["name"])
+        self.labelBrickAddress = Gtk.Label("Address: %s" % self.sbrickConfiguration["addr"])
+        self.topBox.pack_start(self.labelBrickName, False, True, 0)
+        self.topBox.pack_start(self.labelBrickAddress, True, False, 0)
 
         self.buttonConnect = Gtk.Button.new_with_label("Connect")
 
@@ -61,7 +69,8 @@ class SBrickBox(Gtk.Box):
 
         self.SBrickFunctionsBox  = None
         if "functions" in self.sbrickConfiguration:
-            self.SBrickFunctionsBox  = SBrickFunctionsBox(self.sbrickConfiguration["functions"])
+            self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrickConfiguration["functions"],
+                                                         self.sbrickConfiguration["channelConfiguration"])
             self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))
 
         self.show_all()
@@ -97,6 +106,16 @@ class SBrickBox(Gtk.Box):
     def clear_guest_password(self):
         if self.sbrickCommunications is not None:
             self.sbrickCommunications.clear_guest_password()
+
+    def on_button_settings_clicked(self, widget):
+        dialog = SBrickConfigureDialog(self.get_toplevel(), self.sbrickConfiguration)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.show_channels()
+            self.labelBrickName.set_text("SBrick: %s" % self.sbrickConfiguration["name"])
+            self.labelBrickAddress.set_text("Address: %s" % self.sbrickConfiguration["addr"])
+
+        dialog.destroy()
 
     def on_button_connect_clicked(self, widget):
         self.buttonConnect.set_sensitive(False)
@@ -137,7 +156,7 @@ class SBrickBox(Gtk.Box):
         self.buttonConnect.set_label("Disconnect")
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(True)
-        self.buttonChannelConfigure.set_sensitive(False)
+        self.buttonSettings.set_sensitive(False)
         # for act in self.actions_connected:
         #     act.set_enabled(True)
 
@@ -146,7 +165,7 @@ class SBrickBox(Gtk.Box):
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(False)
-        self.buttonChannelConfigure.set_sensitive(True)
+        self.buttonSettings.set_sensitive(True)
 
         # for act in self.actions_connected:
         #     act.set_enabled(False)
@@ -156,20 +175,13 @@ class SBrickBox(Gtk.Box):
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(False)
-        self.buttonChannelConfigure.set_sensitive(True)
+        self.buttonSettings.set_sensitive(True)
 
         self.emit("show_message", sbrick.sBrickAddr, message,"SBrick has disconnected")
         self.set_child_communications(None)
 
     def on_sbrick_channel_stop(self, sbrick, channel):
         self.currentSBrickChannels[channel].stopped()
-
-    def on_button_channel_configure_clicked(self,widget):
-        dialog = ChannelConfigureDialog(self.get_toplevel(), self.sbrickConfiguration)
-        response = dialog.run()
-        if response == Gtk.ResponseType.OK:
-            self.show_channels()
-        dialog.destroy()
 
     def show_channels(self):
         children = self.channelBox.get_children()
@@ -186,10 +198,6 @@ class SBrickBox(Gtk.Box):
                 channel_box = SBrickServoChannelBox(channelNumber, sb)
             self.channelBox.pack_start(channel_box, False, False, 0)
             self.currentSBrickChannels.append(channel_box)
-
-        self.buttonChannelConfigure = Gtk.Button.new_with_label("Configure")
-        self.buttonChannelConfigure.connect("clicked", self.on_button_channel_configure_clicked)
-        self.channelBox.pack_start(self.buttonChannelConfigure, False, True, 0)
 
         self.channelBox.show_all()
 

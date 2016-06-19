@@ -67,7 +67,7 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.vbox.add(self.spinTime)
         self.spinTime.set_sensitive(False)
 
-        self.buttonGo = Gtk.Button("Move")
+        self.buttonGo = Gtk.Button("On")
         self.buttonGo.connect("clicked", self.on_switch_go_clicked)
         self.vbox.add(self.buttonGo)
         # self.vbox.pack_start(self.buttonGo, False, False, 0)
@@ -78,15 +78,21 @@ class SBrickServoChannelBox(Gtk.Frame):
 
     def on_switch_go_clicked(self, switch):
         if self.sbrick is not None:
-            self.on = True
-            timems = -1
-            if self.checkTime.get_active():
-                timems = self.spinTime.get_value_as_int()
+            if not self.on:
+                self.on = True
+                self.buttonGo.set_label("Off")
+                timems = -1
+                if self.checkTime.get_active():
+                    timems = self.spinTime.get_value_as_int()
 
-            if self.pwm == 0:
-                self.sbrick.stop(self.channel)
+                if self.pwm == 0:
+                    self.sbrick.stop(self.channel)
+                else:
+                    self.sbrick.drive(self.channel, self.pwm, 0, timems)
             else:
-                self.sbrick.drive(self.channel, self.pwm, 0, timems)
+                self.on = False
+                self.buttonGo.set_label("On")
+                self.sbrick.stop(self.channel)
 
     def on_comboposition_changed(self, combo):
         self.pwm = int(combo.get_active_id())
@@ -99,6 +105,7 @@ class SBrickServoChannelBox(Gtk.Frame):
 
     def stopped(self):
         self.on = False
+        self.buttonGo.set_label("On")
 
     def on_time_toggled(self, checkbox):
         self.spinTime.set_sensitive(checkbox.get_active())
