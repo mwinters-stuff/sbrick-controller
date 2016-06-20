@@ -3,75 +3,88 @@
     "channelConfiguration": [
       {
         "id": "lm1",
-        "type": "motor",
-        "name": "Large Left Motor2"
+        "name": "Large Left Motor2",
+        "type": "motor"
       },
       {
         "id": "lm2",
-        "type": "servo",
-        "name": "Large Right Motor2"
+        "name": "Large Right Motor2",
+        "type": "servo"
       },
       {
         "id": "xlm1",
-        "type": "motor",
-        "name": "Xtra Large Motor2"
+        "name": "Xtra Large Motor2",
+        "type": "motor"
       },
       {
         "id": "s1",
-        "type": "servo",
-        "name": "Lego Servo2"
+        "name": "Lego Servo2",
+        "type": "servo"
       }
     ],
     "ownerPassword": "abcdefgh",
-    "addr": "00:07:80:BD:1C:3A",
     "name": "Test Rig",
+    "addr": "00:07:80:BD:1C:3A",
     "functions": [
       {
-        "group": "Rotors",
         "functions": [
           {
+            "pwm": 255,
+            "reverse": "true",
             "time": -1,
             "label": "Spin",
-            "reverse": "true",
-            "pwm": 255,
-            "channel": "xlm1",
-            "off": "coast"
-          },
-          {
-            "channel": "xlm1",
             "off": "coast",
-            "label": "Stop"
+            "channel": "xlm1"
           },
           {
+            "label": "Stop",
+            "off": "coast",
+            "channel": "xlm1"
+          },
+          {
+            "pwm": 25,
+            "reverse": "true",
             "time": 1020,
             "label": "qw",
-            "reverse": "true",
-            "pwm": 25,
-            "channel": "lm1",
-            "off": "coast"
+            "off": "coast",
+            "channel": "lm1"
           }
-        ]
+        ],
+        "group": "Rotors"
       },
       {
-        "group": "Hook",
         "functions": [
           {
+            "pwm": 150,
+            "reverse": "true",
             "time": 1000,
             "label": "Hook Down",
-            "reverse": "true",
-            "pwm": 150,
-            "channel": "lm2",
-            "off": "brake"
+            "off": "brake",
+            "channel": "lm2"
           },
           {
-            "reverse": "false",
+            "pwm": 150,
             "label": "Hook Up",
             "time": 2150,
-            "pwm": 150,
-            "channel": "lm2",
-            "off": "brake"
+            "reverse": "false",
+            "off": "brake",
+            "channel": "lm2"
           }
-        ]
+        ],
+        "group": "Hook"
+      },
+      {
+        "functions": [
+          {
+            "pwm": 190,
+            "reverse": "false",
+            "time": 680,
+            "label": "asddsasd",
+            "off": "brake",
+            "channel": "lm1"
+          }
+        ],
+        "group": "adas"
       }
     ]
   },
@@ -79,117 +92,117 @@
     "channelConfiguration": [
       {
         "id": "rotors",
-        "type": "motor",
-        "name": "Rotors"
+        "name": "Rotors",
+        "type": "motor"
       },
       {
         "id": "hook",
-        "type": "motor",
-        "name": "Hook"
+        "name": "Hook",
+        "type": "motor"
       },
       {
         "id": "ramp",
-        "type": "motor",
-        "name": "Rear Ramp"
+        "name": "Rear Ramp",
+        "type": "motor"
       },
       {
         "id": "bay",
-        "type": "motor",
-        "name": "Bay Doors"
+        "name": "Bay Doors",
+        "type": "motor"
       }
     ],
-    "addr": "00:07:80:BD:21:A4",
-    "name": "Helicopter",
     "functions": [
       {
-        "group": "Rotors",
         "functions": [
           {
-            "reverse": "true",
             "time": "-1",
             "pwm": "255",
-            "channel": "rotors",
-            "label": "Spin"
+            "label": "Spin",
+            "reverse": "true",
+            "channel": "rotors"
           },
           {
-            "channel": "rotors",
+            "label": "Stop",
             "off": "brake",
-            "label": "Stop"
+            "channel": "rotors"
           }
-        ]
+        ],
+        "group": "Rotors"
       },
       {
-        "group": "Hook",
         "functions": [
           {
+            "pwm": "150",
+            "reverse": "true",
             "time": "3000",
             "label": "Hook Down",
-            "reverse": "true",
-            "pwm": "150",
-            "channel": "hook",
-            "off": "brake"
+            "off": "brake",
+            "channel": "hook"
           },
           {
             "time": "3000",
             "pwm": "150",
-            "channel": "hook",
+            "label": "Hook Up",
             "off": "brake",
-            "label": "Hook Up"
+            "channel": "hook"
           }
-        ]
+        ],
+        "group": "Hook"
       }
-    ]
+    ],
+    "name": "Helicopter",
+    "addr": "00:07:80:BD:21:A4"
   },
   {
     "channelConfiguration": [
       {
         "id": "drive",
-        "type": "motor",
-        "name": "Drive"
+        "name": "Drive",
+        "type": "motor"
       },
       {
         "id": "bucket",
-        "type": "motor",
-        "name": "Bucket Tip"
+        "name": "Bucket Tip",
+        "type": "motor"
       },
       {
         "id": "steer",
-        "type": "servo",
-        "name": "Steering"
+        "name": "Steering",
+        "type": "servo"
       },
       {
         "id": "raise",
-        "type": "motor",
-        "name": "Bucket Raise"
+        "name": "Bucket Raise",
+        "type": "motor"
       }
     ],
-    "addr": "00:07:80:BD:23:BE",
-    "name": "Loader"
+    "name": "Loader",
+    "addr": "00:07:80:BD:23:BE"
   },
   {
     "channelConfiguration": [
       {
         "id": "drive",
-        "type": "motor",
-        "name": "Drive"
+        "name": "Drive",
+        "type": "motor"
       },
       {
         "id": "rotate",
-        "type": "motor",
-        "name": "Rotate Body"
+        "name": "Rotate Body",
+        "type": "motor"
       },
       {
         "id": "lift",
-        "type": "motor",
-        "name": "Lift"
+        "name": "Lift",
+        "type": "motor"
       },
       {
         "id": "boom",
-        "type": "motor",
-        "name": "Boom"
+        "name": "Boom",
+        "type": "motor"
       }
     ],
-    "addr": "00:07:80:bd:23:60",
-    "name": "Crane"
+    "name": "Crane",
+    "addr": "00:07:80:bd:23:60"
   }
 ]

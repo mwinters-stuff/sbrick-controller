@@ -139,7 +139,8 @@ class FunctionConfigureDialog(Gtk.Dialog):
         self.edit_name = Gtk.Entry()
         self.edit_name.set_max_length(20)
         self.action_box.pack_start(self.edit_name, False, True, 0)
-        self.edit_name.set_text(configuration["group"])
+        if "group" in configuration:
+            self.edit_name.set_text(configuration["group"])
 
         self.button_add = Gtk.Button.new()
         self.button_add.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_ADD, Gtk.IconSize.BUTTON))
@@ -152,11 +153,14 @@ class FunctionConfigureDialog(Gtk.Dialog):
         self.action_box.pack_start(self.button_del, False, True, 0)
 
         self.functions = []
-        for func in configuration["functions"]:
-            fo = FunctionOptions(func, channels)
-            # self.content.pack_start(fo, False, True, 0)
-            self.content.add(fo)
-            self.functions.append(fo)
+        if "functions" in configuration:
+            for func in configuration["functions"]:
+                fo = FunctionOptions(func, channels)
+                # self.content.pack_start(fo, False, True, 0)
+                self.content.add(fo)
+                self.functions.append(fo)
+        else:
+            configuration["functions"] = []
 
         self.show_all()
         self.connect('response', self.on_response)
