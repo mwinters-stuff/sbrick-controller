@@ -97,37 +97,41 @@ class FunctionGroupBox(Gtk.Frame):
         self.hbox.set_sensitive(sbrick is not None)
 
 
-class SBrickFunctionsBox(Gtk.ListBox):
+class SBrickFunctionsBox(Gtk.Box):
     def __init__(self, configuration, channels):
-        Gtk.ListBox.__init__(self)
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+        self.set_homogeneous(False)
+
+        self.tool_bar = Gtk.Toolbar()
+        self.pack_start(self.tool_bar, False, True, 0)
+
+        tool = Gtk.ToolButton.new(Gtk.Image.new_from_stock(Gtk.STOCK_ADD, Gtk.IconSize.BUTTON), "Add")
+        tool.connect("clicked", self.on_add_clicked)
+        self.tool_bar.insert(tool, -1)
+        tool = Gtk.ToolButton.new(Gtk.Image.new_from_stock(Gtk.STOCK_DELETE, Gtk.IconSize.BUTTON), "Delete")
+        tool.connect("clicked", self.on_delete_clicked)
+        self.tool_bar.insert(tool, -1)
+        self.content = Gtk.ListBox()
+
+        self.scrollTree = Gtk.ScrolledWindow()
+        self.scrollTree.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scrollTree.add_with_viewport(self.content)
+        self.scrollTree.set_min_content_height(100)
+        self.pack_start(self.scrollTree, True, True, 0)
 
         self.configuration = configuration
         self.channels = channels
         self.sbrick = None
         self.functionGroups = []
 
-        self.action_box = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        self.action_box.set_homogeneous(False)
-        self.add(self.action_box)
-        self.get_row_at_index(0).set_activatable(False)
-        self.get_row_at_index(0).set_selectable(False)
-        # self.pack_start(self.action_box, False, True, 0)
-
-        self.button_add = Gtk.Button.new()
-        self.button_add.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_ADD, Gtk.IconSize.BUTTON))
-        self.button_add.connect("clicked", self.on_add_clicked)
-        self.action_box.pack_start(self.button_add, False, True, 0)
-
-        self.button_del = Gtk.Button.new()
-        self.button_del.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DELETE, Gtk.IconSize.BUTTON))
-        self.button_del.connect("clicked", self.on_delete_clicked)
-        self.action_box.pack_start(self.button_del, False, True, 0)
-
         for group in configuration:
             fg = FunctionGroupBox(group, channels)
             # self.pack_start(fg, False, True, 0)
-            self.add(fg)
+            self.content.add(fg)
             self.functionGroups.append(fg)
+
+    def write_configuration(self):
+        pass
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
@@ -137,18 +141,18 @@ class SBrickFunctionsBox(Gtk.ListBox):
     def on_add_clicked(self, widget):
         group = dict()
         fg = FunctionGroupBox(group, self.channels)
-        self.add(fg)
+        self.content.add(fg)
         if fg.do_add_new():
             fg.set_sbrick(self.sbrick)
             self.functionGroups.append(fg)
             self.configuration.append(group)
             self.show_all()
         else:
-            self.remove(fg)
+            self.content.remove(fg)
             fg.destroy()
 
     def on_delete_clicked(self, widget):
-        row = self.get_selected_row()
+        row = self.content.get_selected_row()
         ch = row.get_child()
         self.configuration.remove(ch.configuration)
-        self.remove(row)
+        self.content.remove(row)

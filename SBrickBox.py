@@ -2,6 +2,7 @@ import gi
 
 from SBrickConfigureDialog import SBrickConfigureDialog
 from SBrickFunctionsBox import SBrickFunctionsBox
+from SBrickSequenceBox import SBrickSequenceBox
 
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
@@ -67,11 +68,14 @@ class SBrickBox(Gtk.Box):
 
         self.show_channels()
 
-        self.SBrickFunctionsBox  = None
-        if "functions" in self.sbrickConfiguration:
-            self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrickConfiguration["functions"],
-                                                         self.sbrickConfiguration["channelConfiguration"])
-            self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))
+        if "functions" not in self.sbrickConfiguration:
+            self.sbrickConfiguration["functions"] = dict()
+        self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrickConfiguration["functions"],
+                                                     self.sbrickConfiguration["channelConfiguration"])
+        self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))
+
+        self.SBrickSequenceBox = SBrickSequenceBox(self.sbrickConfiguration)
+        self.notebook.append_page(self.SBrickSequenceBox, Gtk.Label("Sequence"))
 
         self.show_all()
 
@@ -148,8 +152,13 @@ class SBrickBox(Gtk.Box):
         for widget in self.currentSBrickChannels:
             widget.set_sbrick(sbrick)
         self.SBrickInfoBox.set_sbrick(sbrick)
-        if self.SBrickFunctionsBox is not None:
-            self.SBrickFunctionsBox.set_sbrick(sbrick)
+        self.SBrickFunctionsBox.set_sbrick(sbrick)
+        self.SBrickSequenceBox.set_sbrick(sbrick)
+
+    def write_configuration(self):
+        self.SBrickFunctionsBox.write_configuration()
+        self.SBrickSequenceBox.write_configuration()
+
 
     def on_sbrick_connected(self, sbrick):
         self.set_child_communications(sbrick)

@@ -83,6 +83,7 @@ class SBrickApplication(Gtk.Application):
     def save_configuration(self, filename):
         fp = open(filename, mode="w+")
         try:
+            self.window.write_configuration()
             json.dump(self.config, fp, indent=2)
         finally:
             fp.close()
@@ -91,7 +92,7 @@ class SBrickApplication(Gtk.Application):
         dialog = Gtk.FileChooserDialog("Save Configuration As...", self.window,
                                        Gtk.FileChooserAction.SAVE,
                                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+                                        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
         dialog.set_filename(self.configFile)
 
         self.add_filters(dialog)

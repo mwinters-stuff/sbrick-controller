@@ -135,3 +135,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def on_show_size(self, action, param):
         print("%d %d" % (self.get_allocated_width(), self.get_allocated_height()))
+
+    def write_configuration(self):
+        for page in self.notebook.get_children():
+            page.write_configuration()
