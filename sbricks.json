@@ -1,14 +1,62 @@
 [
   {
+    "name": "Test Rig",
+    "functions": [
+      {
+        "group": "Rotors",
+        "functions": [
+          {
+            "label": "Spin",
+            "time": -1,
+            "off": "coast",
+            "channel": "lm1",
+            "pwm": 110,
+            "reverse": "true"
+          },
+          {
+            "label": "Stop",
+            "off": "brake",
+            "channel": "lm1"
+          }
+        ]
+      },
+      {
+        "group": "Servo",
+        "functions": [
+          {
+            "label": "Left",
+            "time": -1,
+            "off": "coast",
+            "channel": "lm2",
+            "pwm": 150,
+            "reverse": "true"
+          },
+          {
+            "label": "Right",
+            "time": -1,
+            "off": "coast",
+            "channel": "lm2",
+            "pwm": 150,
+            "reverse": "false"
+          },
+          {
+            "label": "Center",
+            "off": "coast",
+            "channel": "lm2"
+          }
+        ]
+      }
+    ],
+    "ownerPassword": "abcdefgh",
     "channelConfiguration": [
       {
         "id": "lm1",
-        "name": "Large Left Motor2",
+        "name": "Large Motor",
         "type": "motor"
       },
       {
         "id": "lm2",
-        "name": "Large Right Motor2",
+        "name": "Servo",
         "type": "servo"
       },
       {
@@ -19,76 +67,80 @@
       {
         "id": "s1",
         "name": "Lego Servo2",
-        "type": "servo"
+        "type": "motor"
       }
     ],
-    "ownerPassword": "abcdefgh",
-    "name": "Test Rig",
     "addr": "00:07:80:BD:1C:3A",
-    "functions": [
+    "sequence": [
       {
-        "functions": [
-          {
-            "pwm": 255,
-            "reverse": "true",
-            "time": -1,
-            "label": "Spin",
-            "off": "coast",
-            "channel": "xlm1"
-          },
-          {
-            "label": "Stop",
-            "off": "coast",
-            "channel": "xlm1"
-          },
-          {
-            "pwm": 25,
-            "reverse": "true",
-            "time": 1020,
-            "label": "qw",
-            "off": "coast",
-            "channel": "lm1"
-          }
-        ],
-        "group": "Rotors"
+        "function": "Spin",
+        "function_group": "Rotors",
+        "delay_time": 3000.0
       },
       {
-        "functions": [
-          {
-            "pwm": 150,
-            "reverse": "true",
-            "time": 1000,
-            "label": "Hook Down",
-            "off": "brake",
-            "channel": "lm2"
-          },
-          {
-            "pwm": 150,
-            "label": "Hook Up",
-            "time": 2150,
-            "reverse": "false",
-            "off": "brake",
-            "channel": "lm2"
-          }
-        ],
-        "group": "Hook"
+        "function": "Left",
+        "function_group": "Servo",
+        "delay_time": 1000.0
       },
       {
-        "functions": [
-          {
-            "pwm": 190,
-            "reverse": "false",
-            "time": 680,
-            "label": "asddsasd",
-            "off": "brake",
-            "channel": "lm1"
-          }
-        ],
-        "group": "adas"
+        "function": "Right",
+        "function_group": "Servo",
+        "delay_time": 1000.0
+      },
+      {
+        "function": "Stop",
+        "function_group": "Rotors",
+        "delay_time": 1000.0
+      },
+      {
+        "function": "Center",
+        "function_group": "Servo",
+        "delay_time": 0.0
       }
     ]
   },
   {
+    "name": "Helicopter",
+    "functions": [
+      {
+        "group": "Rotors",
+        "functions": [
+          {
+            "pwm": "255",
+            "label": "Spin",
+            "reverse": "true",
+            "time": "-1",
+            "channel": "rotors"
+          },
+          {
+            "label": "Stop",
+            "off": "brake",
+            "channel": "rotors"
+          }
+        ]
+      },
+      {
+        "group": "Hook",
+        "functions": [
+          {
+            "label": "Hook Down",
+            "time": "3000",
+            "off": "brake",
+            "channel": "hook",
+            "pwm": "150",
+            "reverse": "true"
+          },
+          {
+            "pwm": "150",
+            "label": "Hook Up",
+            "off": "brake",
+            "time": "3000",
+            "channel": "hook"
+          }
+        ]
+      }
+    ],
+    "addr": "00:07:80:BD:21:A4",
     "channelConfiguration": [
       {
         "id": "rotors",
@@ -111,49 +163,12 @@
         "type": "motor"
       }
     ],
-    "functions": [
-      {
-        "functions": [
-          {
-            "time": "-1",
-            "pwm": "255",
-            "label": "Spin",
-            "reverse": "true",
-            "channel": "rotors"
-          },
-          {
-            "label": "Stop",
-            "off": "brake",
-            "channel": "rotors"
-          }
-        ],
-        "group": "Rotors"
-      },
-      {
-        "functions": [
-          {
-            "pwm": "150",
-            "reverse": "true",
-            "time": "3000",
-            "label": "Hook Down",
-            "off": "brake",
-            "channel": "hook"
-          },
-          {
-            "time": "3000",
-            "pwm": "150",
-            "label": "Hook Up",
-            "off": "brake",
-            "channel": "hook"
-          }
-        ],
-        "group": "Hook"
-      }
-    ],
-    "name": "Helicopter",
-    "addr": "00:07:80:BD:21:A4"
+    "sequence": []
   },
   {
+    "name": "Loader",
+    "functions": {},
+    "addr": "00:07:80:BD:23:BE",
     "channelConfiguration": [
       {
         "id": "drive",
@@ -176,10 +191,12 @@
         "type": "motor"
       }
     ],
-    "name": "Loader",
-    "addr": "00:07:80:BD:23:BE"
+    "sequence": []
   },
   {
+    "name": "Crane",
+    "functions": {},
+    "addr": "00:07:80:bd:23:60",
     "channelConfiguration": [
       {
         "id": "drive",
@@ -202,7 +219,6 @@
         "type": "motor"
       }
     ],
-    "name": "Crane",
-    "addr": "00:07:80:bd:23:60"
+    "sequence": []
   }
 ]

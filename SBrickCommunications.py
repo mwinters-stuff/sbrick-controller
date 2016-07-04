@@ -1,28 +1,17 @@
-import threading
-import gi
-import monotonic
 import struct
-from bluepy.btle import Peripheral, BTLEException
-import six
+import threading
 
+import monotonic
+import six
+from bluepy.btle import Peripheral, BTLEException
+
+from IdleObject import _IdleObject
+
+import gi
 gi.require_version('Gtk', '3.0')
+
 # noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import GObject
-
-GObject.threads_init()
-
-
-class _IdleObject(GObject.GObject):
-    """
-    Override GObject.GObject to always emit signals in the main thread
-    by emmitting on an idle handler
-    """
-
-    def __init__(self):
-        GObject.GObject.__init__(self)
-
-    def emit(self, *args):
-        GObject.idle_add(GObject.GObject.emit, self, *args)
 
 
 class SBrickChannelDrive:
@@ -66,13 +55,13 @@ class SBrickChannelDrive:
     def stop(self, braked=False):
         self.pwm = 0
         self.braked = braked
-        print('stop', self.channel, self.braked)
+        # print('stop', self.channel, self.braked)
 
     def get_command_drive(self, cmdin):
         if not self.in_brake_time:
             if not self.braked and (not self.stopped or self.pwm > 0):
                 self.stopped = self.pwm == 0
-                print("drive ", self.channel, self.stopped, self.reverse, self.pwm)
+                # print("drive ", self.channel, self.stopped, self.reverse, self.pwm)
                 return cmdin + bytearray([self.channel, self.reverse, self.pwm])
         return cmdin
 
@@ -84,7 +73,7 @@ class SBrickChannelDrive:
             if not self.in_brake_time:
                 self.in_brake_time = True
                 self.timestarted = monotonic.monotonic()
-            print("get_command_brake ", self.channel)
+            # print("get_command_brake ", self.channel)
             return cmdin + bytearray([self.channel])
         return cmdin
 
@@ -111,7 +100,7 @@ class SBrickChannelDrive:
             m = monotonic.monotonic()
             if m - self.timestarted >= self.timesec:
                 self.stop(self.brake_after_time)
-                print("time ", m - self.timestarted, self.timesec)
+                # print("time ", m - self.timestarted, self.timesec)
                 self.timems = 0
                 self.timesec = 0
                 self.stopped = False
@@ -126,7 +115,7 @@ class SBrickChannelDrive:
 
             if td >= self.brake_time_sec:
                 self.stop(False)
-                print("brake time ", td, self.timesec)
+                # print("brake time ", td, self.timesec)
                 self.timems = 0
                 self.timesec = 0
                 self.brake_time_sec = 0.0
@@ -211,11 +200,11 @@ class SBrickCommunications(threading.Thread, _IdleObject):
                         if channel.decrement_run_timer():
                             monotime = 0.0
                             self.drivingLock.release()
-                            print("stop run normal")
+                            # print("stop run normal")
                             self.emit("sbrick_channel_stop", channel.channel)
                         if channel.decrement_brake_timer():
                             self.drivingLock.release()
-                            print("stop brake timer")
+                            # print("stop brake timer")
                             monotime = 0.0
                             self.emit("sbrick_channel_stop", channel.channel)
 
@@ -239,6 +228,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             ch = self.get_channel(channel)
             if ch is not None:
                 ch.drive(pwm, reverse, time, brake_after_time)
+                self.emit("sbrick_drive_sent", ch.channel, time)
             self.eventSend.set()
 
     def stop(self, channel, braked=False):
@@ -246,6 +236,7 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             ch = self.get_channel(channel)
             if ch is not None:
                 ch.stop(braked)
+                self.emit("sbrick_drive_sent", ch.channel, -2)
             self.eventSend.set()
 
     def stop_all(self):
@@ -279,10 +270,11 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             if len(drivecmd) > 1:
                 self.drivingLock.acquire()
                 self.characteristicRemote.write(drivecmd, True)
-                self.print_hex_string("drive sent", drivecmd)
+                # self.print_hex_string("drive sent", drivecmd)
+
             if len(brakecmd) > 1:
                 self.characteristicRemote.write(brakecmd, True)
-                self.print_hex_string("brake sent", brakecmd)
+                # self.print_hex_string("brake sent", brakecmd)
                 # return True
                 # except Exception as ex:
                 #     self.emit("sbrick_disconnected_error",ex.message)
@@ -491,5 +483,7 @@ GObject.signal_new("sbrick_disconnected_error", SBrickCommunications, GObject.Si
 GObject.signal_new("sbrick_disconnected_ok", SBrickCommunications, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
 GObject.signal_new("sbrick_channel_stop", SBrickCommunications, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE,
                    [GObject.TYPE_INT])
+GObject.signal_new("sbrick_drive_sent", SBrickCommunications, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE,
+                   [GObject.TYPE_INT, GObject.TYPE_INT])
 GObject.signal_new("sbrick_error", SBrickCommunications, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE,
                    [GObject.TYPE_STRING])
