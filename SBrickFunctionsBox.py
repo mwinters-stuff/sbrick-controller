@@ -6,6 +6,7 @@ gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
 from gi.repository import Gtk, GLib, Gio, GObject
 
+
 class FunctionGroupBox(Gtk.Frame):
     def __init__(self, configuration, channels):
         Gtk.Frame.__init__(self)
@@ -39,9 +40,9 @@ class FunctionGroupBox(Gtk.Frame):
 
     def on_button_clicked(self, widget):
         function = widget.brick_function
-        print("button function",function)
+        print("button function", function)
 
-        channelName = function["channel"]
+        channelname = function["channel"]
         time = -1
         if "time" in function:
             time = int(function["time"])
@@ -57,15 +58,15 @@ class FunctionGroupBox(Gtk.Frame):
 
         if pwm > 0:
             # drive
-            self.sbrick.drive(channelName,pwm,reverse,time,off == "brake")
+            self.sbrick.drive(channelname, pwm, reverse, time, off == "brake")
         else:
             # stop
-            pwm = 0
-            self.sbrick.stop(channelName,off == "brake")
+            self.sbrick.stop(channelname, off == "brake")
 
     def do_add_new(self):
         return self.do_settings()
 
+    # noinspection PyUnusedLocal
     def on_settings_clicked(self, widget):
         self.do_settings()
 
@@ -88,8 +89,6 @@ class FunctionGroupBox(Gtk.Frame):
         else:
             dialog.destroy()
             return False
-
-
 
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
@@ -138,6 +137,7 @@ class SBrickFunctionsBox(Gtk.Box):
         for fg in self.functionGroups:
             fg.set_sbrick(sbrick)
 
+    # noinspection PyUnusedLocal
     def on_add_clicked(self, widget):
         group = dict()
         fg = FunctionGroupBox(group, self.channels)
@@ -151,6 +151,7 @@ class SBrickFunctionsBox(Gtk.Box):
             self.content.remove(fg)
             fg.destroy()
 
+    # noinspection PyUnusedLocal
     def on_delete_clicked(self, widget):
         row = self.content.get_selected_row()
         ch = row.get_child()

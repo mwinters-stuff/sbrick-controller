@@ -1,6 +1,6 @@
 import threading
 
-from IdleObject import _IdleObject
+from IdleObject import IdleObject
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -9,10 +9,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import GObject
 
 
-class SBrickSequencePlayer(threading.Thread, _IdleObject):
+class SBrickSequencePlayer(threading.Thread, IdleObject):
     def __init__(self, sbrick_configuration, sbrick_communications):
         threading.Thread.__init__(self)
-        _IdleObject.__init__(self)
+        IdleObject.__init__(self)
 
         self.sbrick_configuration = sbrick_configuration
         self.sbrick_communications = sbrick_communications
@@ -43,10 +43,12 @@ class SBrickSequencePlayer(threading.Thread, _IdleObject):
     def on_sbrick_disconnected_error(self, sbrick, message):
         pass
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_sbrick_channel_stop(self, sbrick, channel):
         print("step channel stop")
         self.next_event.set()
 
+    # noinspection PyUnusedLocal
     def on_sbrick_drive_sent(self, sbrick, channel, time):
         print("drive sent ", channel, time)
         if time <= 0:
@@ -65,7 +67,7 @@ class SBrickSequencePlayer(threading.Thread, _IdleObject):
             function = self.get_function_in_group(function_group, function_c)
             if function is None:
                 return
-            channelName = function["channel"]
+            channelname = function["channel"]
             time = -1
             if "time" in function:
                 time = int(function["time"])
@@ -82,11 +84,10 @@ class SBrickSequencePlayer(threading.Thread, _IdleObject):
 
             if pwm > 0:
                 # drive
-                self.sbrick_communications.drive(channelName, pwm, reverse, time, off == "brake")
+                self.sbrick_communications.drive(channelname, pwm, reverse, time, off == "brake")
             else:
                 # stop
-                pwm = 0
-                self.sbrick_communications.stop(channelName, off == "brake")
+                self.sbrick_communications.stop(channelname, off == "brake")
 
             self.next_event.wait()
             self.next_event.clear()
@@ -95,13 +96,15 @@ class SBrickSequencePlayer(threading.Thread, _IdleObject):
             self.next_event.clear()
         self.emit('sequence_finished')
 
-    def get_function_group(self, sbrick_configuration, group):
+    @staticmethod
+    def get_function_group(sbrick_configuration, group):
         for gp in sbrick_configuration["functions"]:
             if group == gp["group"]:
                 return gp
         return None
 
-    def get_function_in_group(self, group, function):
+    @staticmethod
+    def get_function_in_group(group, function):
         for f in group["functions"]:
             if function == f["label"]:
                 return f

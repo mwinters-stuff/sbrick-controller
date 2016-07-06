@@ -12,6 +12,18 @@
           </item>
       </section>
       <section>
+          <attribute name="label" translatable="yes">SBricks</attribute>
+          <item>
+              <attribute name="action">win.add_sbrick</attribute>
+              <attribute name="label" translatable="yes">Add SBrick...</attribute>
+          </item>
+          <item>
+              <attribute name="action">win.delete_sbrick</attribute>
+              <attribute name="label" translatable="yes">Delete SBrick</attribute>
+          </item>
+      </section>
+
+      <section>
           <attribute name="label" translatable="yes">Configuration</attribute>
           <item>
               <attribute name="action">app.open_configuration</attribute>

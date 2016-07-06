@@ -5,9 +5,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 
-# from gi.repository import GLib
-
-
 class SBrickMotorChannelBox(Gtk.Frame):
     def __init__(self, channel, sbrick_channel):
         Gtk.Frame.__init__(self)
@@ -17,7 +14,7 @@ class SBrickMotorChannelBox(Gtk.Frame):
         self.sbrick = None
         self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
-        self.vbox = Gtk.FlowBox()#, orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
+        self.vbox = Gtk.FlowBox()  # , orientation=Gtk.Orientation.HORIZONTAL, spacing=3)
         self.vbox.set_border_width(2)
         self.vbox.set_max_children_per_line(7)
         self.vbox.set_min_children_per_line(7)
@@ -62,6 +59,7 @@ class SBrickMotorChannelBox(Gtk.Frame):
         self.pwm = 0
         self.reverse = False
 
+    # noinspection PyUnusedLocal
     def on_switch_go_clicked(self, switch):
         self.on = not self.on
         if self.sbrick is not None:

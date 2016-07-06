@@ -111,6 +111,7 @@ class SBrickBox(Gtk.Box):
         if self.sbrickCommunications is not None:
             self.sbrickCommunications.clear_guest_password()
 
+    # noinspection PyUnusedLocal
     def on_button_settings_clicked(self, widget):
         dialog = SBrickConfigureDialog(self.get_toplevel(), self.sbrickConfiguration)
         response = dialog.run()
@@ -121,6 +122,7 @@ class SBrickBox(Gtk.Box):
 
         dialog.destroy()
 
+    # noinspection PyUnusedLocal
     def on_button_connect_clicked(self, widget):
         self.buttonConnect.set_sensitive(False)
         if self.sbrickCommunications is None:
@@ -128,8 +130,7 @@ class SBrickBox(Gtk.Box):
             self.sbrickCommunications = SBrickCommunications(self.sbrickConfiguration["addr"])
             for channelNumber in range(4):
                 sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
-                self.sbrickCommunications.set_channel_config_id(channelNumber,sb["id"])
-
+                self.sbrickCommunications.set_channel_config_id(channelNumber, sb["id"])
 
             self.sbrickCommunications.connect('sbrick_connected', self.on_sbrick_connected)
             self.sbrickCommunications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error)
@@ -143,7 +144,8 @@ class SBrickBox(Gtk.Box):
             self.sbrickCommunications.disconnect()
             self.set_child_communications(None)
 
-    def on_button_estop_clicked(self,widget):
+    # noinspection PyUnusedLocal
+    def on_button_estop_clicked(self, widget):
         if self.sbrickCommunications is not None:
             self.sbrickCommunications.stop_all()
 
@@ -159,7 +161,6 @@ class SBrickBox(Gtk.Box):
         self.SBrickFunctionsBox.write_configuration()
         self.SBrickSequenceBox.write_configuration()
 
-
     def on_sbrick_connected(self, sbrick):
         self.set_child_communications(sbrick)
         self.buttonConnect.set_label("Disconnect")
@@ -169,6 +170,7 @@ class SBrickBox(Gtk.Box):
         # for act in self.actions_connected:
         #     act.set_enabled(True)
 
+    # noinspection PyUnusedLocal
     def on_sbrick_disconnected_ok(self, sbrick):
         self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
@@ -186,9 +188,10 @@ class SBrickBox(Gtk.Box):
         self.buttonEStop.set_sensitive(False)
         self.buttonSettings.set_sensitive(True)
 
-        self.emit("show_message", sbrick.sBrickAddr, message,"SBrick has disconnected")
+        self.emit("show_message", sbrick.sBrickAddr, message, "SBrick has disconnected")
         self.set_child_communications(None)
 
+    # noinspection PyUnusedLocal
     def on_sbrick_channel_stop(self, sbrick, channel):
         self.currentSBrickChannels[channel].stopped()
 
@@ -215,6 +218,6 @@ GObject.type_register(SBrickBox)
 GObject.signal_new("sbrick_connected", SBrickBox, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
 GObject.signal_new("sbrick_disconnected", SBrickBox, GObject.SignalFlags.RUN_LAST, GObject.TYPE_NONE, ())
 GObject.signal_new("show_message", SBrickBox, GObject.SignalFlags.RUN_LAST,
-                   GObject.TYPE_NONE,[GObject.TYPE_STRING,
-                                      GObject.TYPE_STRING,
-                                      GObject.TYPE_STRING])
+                   GObject.TYPE_NONE, [GObject.TYPE_STRING,
+                                       GObject.TYPE_STRING,
+                                       GObject.TYPE_STRING])

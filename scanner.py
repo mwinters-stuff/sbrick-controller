@@ -7,7 +7,7 @@ class ScanDelegate(DefaultDelegate):
         DefaultDelegate.__init__(self)
 
     @staticmethod
-    def handleDiscovery(device, isNewDev, isNewData):
+    def handleDiscovery(device, isNewDev, isNewData, **kwargs):
         if isNewDev:
             print("Discovered device", device.addr)
         elif isNewData:

@@ -8,7 +8,7 @@ from gi.repository import GObject
 GObject.threads_init()
 
 
-class _IdleObject(GObject.GObject):
+class IdleObject(GObject.GObject):
     """
     Override GObject.GObject to always emit signals in the main thread
     by emmitting on an idle handler

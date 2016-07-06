@@ -5,9 +5,10 @@ import monotonic
 import six
 from bluepy.btle import Peripheral, BTLEException
 
-from IdleObject import _IdleObject
+from IdleObject import IdleObject
 
 import gi
+
 gi.require_version('Gtk', '3.0')
 
 # noinspection PyUnresolvedReferences,PyPep8
@@ -124,10 +125,10 @@ class SBrickChannelDrive:
         return False
 
 
-class SBrickCommunications(threading.Thread, _IdleObject):
+class SBrickCommunications(threading.Thread, IdleObject):
     def __init__(self, sbrick_addr):
         threading.Thread.__init__(self)
-        _IdleObject.__init__(self)
+        IdleObject.__init__(self)
 
         self.lock = threading.RLock()
         self.drivingLock = threading.RLock()
@@ -189,7 +190,6 @@ class SBrickCommunications(threading.Thread, _IdleObject):
                 if self.password_owner is not None:
                     self.authenticate_owner(self.password_owner)
 
-
             while not self.stopFlag:
                 if self.authenticated:
                     if monotonic.monotonic() - monotime >= 0.1:
@@ -217,9 +217,9 @@ class SBrickCommunications(threading.Thread, _IdleObject):
             self.emit("sbrick_disconnected_error", ex.message)
 
     def get_channel(self, channel):
-        if isinstance(channel,six.integer_types):
+        if isinstance(channel, six.integer_types):
             return self.brickChannels[channel]
-        if isinstance(channel,six.string_types):
+        if isinstance(channel, six.string_types):
             return self.brickChannels[self.channel_config_ids[channel]]
         return None
 

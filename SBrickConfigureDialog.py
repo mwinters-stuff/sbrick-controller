@@ -6,21 +6,18 @@ from gi.repository import Gtk
 
 
 class SBrickConfigureDialog(Gtk.Dialog):
-    def __init__(self, parent, sbrickConfiguration):
+    def __init__(self, parent, sbrick_configuration):
         Gtk.Dialog.__init__(self, "Configure SBrick", parent, 0,
                             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
                              Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
-        self.sbrickConfiguration = sbrickConfiguration
+        self.sbrickConfiguration = sbrick_configuration
         self.set_default_size(150, 100)
 
         self.channelTypeStore = Gtk.ListStore(str, str)
         self.channelTypeStore.append(["motor", "Motor"])
         self.channelTypeStore.append(["servo", "Servo"])
-
-        self.content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
-
-        self.get_content_area().add(self.content)
+        self.content = self.get_content_area()
 
         hbox = Gtk.FlowBox()
         hbox.set_max_children_per_line(2)
@@ -44,8 +41,10 @@ class SBrickConfigureDialog(Gtk.Dialog):
         self.channel3_id_edit, self.channel3_name_edit, self.channel3_combo_type = self.create_channel_box(3)
         self.channel4_id_edit, self.channel4_name_edit, self.channel4_combo_type = self.create_channel_box(4)
 
-        self.edit_brick_name.set_text(self.sbrickConfiguration["name"])
-        self.edit_brick_address.set_text(self.sbrickConfiguration["addr"])
+        if "name" in self.sbrickConfiguration:
+            self.edit_brick_name.set_text(self.sbrickConfiguration["name"])
+        if "addr" in self.sbrickConfiguration:
+            self.edit_brick_address.set_text(self.sbrickConfiguration["addr"])
 
         self.set_from_config(0, self.channel1_id_edit, self.channel1_name_edit, self.channel1_combo_type)
         self.set_from_config(1, self.channel2_id_edit, self.channel2_name_edit, self.channel2_combo_type)
@@ -55,10 +54,12 @@ class SBrickConfigureDialog(Gtk.Dialog):
         self.show_all()
         self.connect('response', self.on_response)
 
+    # noinspection PyUnusedLocal
     def on_response(self, dialog, response_id):
         if response_id == Gtk.ResponseType.OK:
             self.sbrickConfiguration["name"] = self.edit_brick_name.get_text()
             self.sbrickConfiguration["addr"] = self.edit_brick_address.get_text()
+            self.sbrickConfiguration["channelConfiguration"] = []
             self.set_to_config(0, self.channel1_id_edit, self.channel1_name_edit, self.channel1_combo_type)
             self.set_to_config(1, self.channel2_id_edit, self.channel2_name_edit, self.channel2_combo_type)
             self.set_to_config(2, self.channel3_id_edit, self.channel3_name_edit, self.channel3_combo_type)
@@ -95,13 +96,15 @@ class SBrickConfigureDialog(Gtk.Dialog):
         return id_edit, name_edit, combo_type
 
     def set_from_config(self, channel_index, id_edit, name_edit, combo_type):
-        channel = self.sbrickConfiguration["channelConfiguration"][channel_index]
-        id_edit.set_text(channel["id"])
-        name_edit.set_text(channel["name"])
-        combo_type.set_active_id(channel["type"])
+        if "channelConfiguration" in self.sbrickConfiguration:
+            channel = self.sbrickConfiguration["channelConfiguration"][channel_index]
+            id_edit.set_text(channel["id"])
+            name_edit.set_text(channel["name"])
+            combo_type.set_active_id(channel["type"])
 
     def set_to_config(self, channel_index, id_edit, name_edit, combo_type):
-        channel = self.sbrickConfiguration["channelConfiguration"][channel_index]
+        channel = dict()
+        self.sbrickConfiguration["channelConfiguration"].append(channel)
         channel["id"] = id_edit.get_text()
         channel["name"] = name_edit.get_text()
         channel["type"] = combo_type.get_active_id()

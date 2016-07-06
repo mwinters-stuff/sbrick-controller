@@ -1,5 +1,4 @@
 import gi
-
 from SBrickSequencePlayer import SBrickSequencePlayer
 
 gi.require_version('Gtk', '3.0')
@@ -63,7 +62,6 @@ class SequenceStepBox(Gtk.Box):
     def set_sbrick(self, sbrick):
         self.sbrick = sbrick
 
-
     def write_configuration(self):
         self.step_configuration["function_group"] = self.combo_function_group.get_active_id()
         self.step_configuration["function"] = self.combo_function.get_active_id()
@@ -76,11 +74,10 @@ class SequenceStepBox(Gtk.Box):
         for group in self.functions:
             label = group["group"]
             self.function_group_model.append([label, label])
-        if active_group == None:
-            iter = self.function_group_model.get_iter_first()
-            if iter:
-                active_group = self.function_group_model.get_value(iter, 0)
-                print(active_group)
+        if active_group is None:
+            iterf = self.function_group_model.get_iter_first()
+            if iterf:
+                active_group = self.function_group_model.get_value(iterf, 0)
         self.combo_function_group.set_active_id(active_group)
         self.update_function_model(active_group)
 
@@ -92,12 +89,13 @@ class SequenceStepBox(Gtk.Box):
                 for func in fgroup["functions"]:
                     label = func["label"]
                     self.function_model.append([label, label])
-        if active_function == None:
-            iter = self.function_model.get_iter_first()
-            if iter:
-                active_function = self.function_model.get_value(iter, 0)
+        if active_function is None:
+            iterf = self.function_model.get_iter_first()
+            if iterf:
+                active_function = self.function_model.get_value(iterf, 0)
         self.combo_function.set_active_id(active_function)
 
+    # noinspection PyUnusedLocal
     def on_group_changed(self, widget):
         group = self.combo_function_group.get_active_id()
         self.update_function_model(group)
@@ -107,6 +105,7 @@ class SBrickSequenceBox(Gtk.Box):
     def __init__(self, configuration):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
         self.set_homogeneous(False)
+        self.sequence_player = None
 
         self.tool_bar = Gtk.Toolbar()
         self.pack_start(self.tool_bar, False, True, 0)
@@ -160,6 +159,7 @@ class SBrickSequenceBox(Gtk.Box):
         for step in self.sequenceSteps:
             step.write_configuration()
 
+    # noinspection PyUnusedLocal
     def on_add_clicked(self, widget):
         step = dict()
         self.sbrickConfiguration["sequence"].append(step)
@@ -168,13 +168,16 @@ class SBrickSequenceBox(Gtk.Box):
         self.sequenceSteps.append(stepbox)
         self.show_all()
 
+    # noinspection PyUnusedLocal
     def on_delete_clicked(self, widget):
         row = self.content.get_selected_row()
         if row is not None:
             ch = row.get_child()
             self.sbrickConfiguration["sequence"].remove(ch.step_configuration)
             self.content.remove(row)
+            self.sequenceSteps.remove(ch)
 
+    # noinspection PyUnusedLocal
     def on_up_clicked(self, widget):
         rowup = self.content.get_selected_row()
         if rowup is not None:
@@ -190,6 +193,7 @@ class SBrickSequenceBox(Gtk.Box):
                 self.content.insert(widget, newindex)
                 self.content.select_row(self.content.get_row_at_index(newindex))
 
+    # noinspection PyUnusedLocal
     def on_down_clicked(self, widget):
         rowdown = self.content.get_selected_row()
         if rowdown is not None:
@@ -211,6 +215,7 @@ class SBrickSequenceBox(Gtk.Box):
         for step in self.sequenceSteps:
             step.set_sbrick(sbrick)
 
+    # noinspection PyUnusedLocal
     def on_run_clicked(self, widget):
         self.enable_tools(False, False)
         self.content.set_sensitive(False)
@@ -219,6 +224,7 @@ class SBrickSequenceBox(Gtk.Box):
         self.sequence_player.connect('sequence_finished', self.on_sequence_finished)
         self.sequence_player.start()
 
+    # noinspection PyUnusedLocal
     def on_sequence_finished(self, sequence_player):
         print("sequece finished")
         if self.sequence_player == sequence_player:

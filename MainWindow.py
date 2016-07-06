@@ -2,6 +2,7 @@ import gi
 
 from PasswordDialog import PasswordDialog
 from SBrickBox import SBrickBox
+from SBrickConfigureDialog import SBrickConfigureDialog
 
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
@@ -12,7 +13,7 @@ class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         self.config = kwargs.pop("config", None)
 
-        Gtk.ApplicationWindow.__init__(self,*args, **kwargs)
+        Gtk.ApplicationWindow.__init__(self, *args, **kwargs)
 
         # self.set_default_size(800, 480)
         self.resize(800, 480)
@@ -25,7 +26,7 @@ class MainWindow(Gtk.ApplicationWindow):
         if self.config is not None:
             for sbrick in self.config:
                 page = SBrickBox(sbrick)
-                page.connect("show_message",self.on_show_message)
+                page.connect("show_message", self.on_show_message)
                 self.notebook.append_page(page, Gtk.Label(sbrick["name"]))
 
         self.actions = []
@@ -33,6 +34,9 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.setup_actions()
         self.show_all()
+
+        # noinspection PyUnusedLocal
+
 
     def setup_actions(self):
         action = Gio.SimpleAction.new("set_owner_password", None)
@@ -77,6 +81,14 @@ class MainWindow(Gtk.ApplicationWindow):
         action.connect("activate", self.on_show_size)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new("add_sbrick", None)
+        action.connect("activate", self.on_add_sbrick)
+        self.add_action(action)
+
+        action = Gio.SimpleAction.new("delete_sbrick", None)
+        action.connect("activate", self.on_delete_sbrick)
+        self.add_action(action)
+
         for act in self.actions_connected:
             act.set_enabled(False)
 
@@ -89,6 +101,27 @@ class MainWindow(Gtk.ApplicationWindow):
             ch.disconnect()
         Gtk.main_quit(*args)
 
+    def on_add_sbrick(self, action, param):
+        sc = dict()
+        dialog = SBrickConfigureDialog(self, sc)
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            self.config.append(sc)
+            self.add_sbrick(sc)
+
+        dialog.destroy()
+
+        # noinspection PyUnusedLocal
+
+    def on_delete_sbrick(self, action, param):
+        pass
+
+    def add_sbrick(self, config):
+        page = SBrickBox(config)
+        page.connect("show_message", self.on_show_message)
+        self.notebook.append_page(page, Gtk.Label(config["name"]))
+
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_set_owner_password(self, action, param):
         dialog = PasswordDialog(self)
         response = dialog.run()
@@ -96,6 +129,7 @@ class MainWindow(Gtk.ApplicationWindow):
             self.get_showing_sbrick_box().set_password_owner(dialog.get_password())
         dialog.destroy()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_set_guest_password(self, action, param):
         dialog = PasswordDialog(self)
         response = dialog.run()
@@ -103,36 +137,42 @@ class MainWindow(Gtk.ApplicationWindow):
             self.get_showing_sbrick_box().set_password_guest(dialog.get_password())
         dialog.destroy()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_write_owner_password(self, action, param):
         self.get_showing_sbrick_box().write_owner_password()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_write_guest_password(self, action, param):
         self.get_showing_sbrick_box().write_guest_password()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_clear_owner_password(self, action, param):
         self.get_showing_sbrick_box().clear_owner_password()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_clear_guest_password(self, action, param):
         self.get_showing_sbrick_box().clear_guest_password()
 
-    def show_message(self,title,message,mainmessage):
+    def show_message(self, title, message, mainmessage):
         messagedialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
                                           Gtk.ButtonsType.OK,
-                                          "[%s] %s" % (title,mainmessage))
+                                          "[%s] %s" % (title, mainmessage))
         messagedialog.format_secondary_text(message)
         messagedialog.run()
         messagedialog.destroy()
 
-    def on_show_message(self,widget,title,message,mainmessage):
-        self.show_message(title,message,mainmessage)
+    # noinspection PyUnusedLocal
+    def on_show_message(self, widget, title, message, mainmessage):
+        self.show_message(title, message, mainmessage)
 
     def on_toggle_fullscreen(self, action, value):
         action.set_state(value)
-        if(value.get_boolean()):
+        if value.get_boolean():
             self.fullscreen()
         else:
             self.unfullscreen()
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def on_show_size(self, action, param):
         print("%d %d" % (self.get_allocated_width(), self.get_allocated_height()))
 

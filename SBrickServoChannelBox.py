@@ -13,7 +13,7 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.sbrick = None
         self.set_label("Channel: %d - %s" % ((channel + 1), self.sbrickChannel["name"]))
 
-        self.vbox = Gtk.FlowBox()#self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        self.vbox = Gtk.FlowBox()  # self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         self.vbox.set_max_children_per_line(5)
         self.vbox.set_min_children_per_line(5)
         self.vbox.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -76,6 +76,7 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.pwm = 0
         self.on = False
 
+    # noinspection PyUnusedLocal
     def on_switch_go_clicked(self, switch):
         if self.sbrick is not None:
             if not self.on:
