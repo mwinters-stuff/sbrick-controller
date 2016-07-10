@@ -15,9 +15,13 @@ from SBrickServoChannelBox import SBrickServoChannelBox
 
 
 class SBrickBox(Gtk.Box):
-    def __init__(self, sbrick_configuration):
+    def __init__(self, sbrick_configuration, sbrick_communications_store):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=3, margin=0)
-        self.sbrickConfiguration = sbrick_configuration
+        self.sbrick_configuration = sbrick_configuration
+        self.sbrick_communications_store = sbrick_communications_store
+        self.sbrick_communications_store.add_observer(self)
+
+        self.handler_ids = []
 
         self.topBox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, margin=0)
 
@@ -27,8 +31,8 @@ class SBrickBox(Gtk.Box):
         self.buttonSettings.connect("clicked", self.on_button_settings_clicked)
         self.topBox.pack_start(self.buttonSettings, False, True, 0)
 
-        self.labelBrickName = Gtk.Label("SBrick: %s" % self.sbrickConfiguration["name"])
-        self.labelBrickAddress = Gtk.Label("Address: %s" % self.sbrickConfiguration["addr"])
+        self.labelBrickName = Gtk.Label("SBrick: %s" % self.sbrick_configuration["name"])
+        self.labelBrickAddress = Gtk.Label("Address: %s" % self.sbrick_configuration["addr"])
         self.topBox.pack_start(self.labelBrickName, False, True, 0)
         self.topBox.pack_start(self.labelBrickAddress, True, False, 0)
 
@@ -55,39 +59,62 @@ class SBrickBox(Gtk.Box):
 
         self.password_guest = None
         self.password_owner = None
-        self.currentSBrickChannels = []
-        self.sbrickCommunications = None
+        self.current_sbrick_channels = []
+        self.sbrick_communications = None
 
-        if "ownerPassword" in self.sbrickConfiguration:
-            self.password_owner = self.sbrickConfiguration["ownerPassword"]
-        if "guestPassword" in self.sbrickConfiguration:
-            self.password_guest = self.sbrickConfiguration["guestPassword"]
+        if "ownerPassword" in self.sbrick_configuration:
+            self.password_owner = self.sbrick_configuration["ownerPassword"]
+        if "guestPassword" in self.sbrick_configuration:
+            self.password_guest = self.sbrick_configuration["guestPassword"]
 
         self.channelBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=5)
         self.notebook.append_page(self.channelBox, Gtk.Label("Control"))
 
         self.show_channels()
 
-        if "functions" not in self.sbrickConfiguration:
-            self.sbrickConfiguration["functions"] = dict()
-        self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrickConfiguration["functions"],
-                                                     self.sbrickConfiguration["channelConfiguration"])
+        if "functions" not in self.sbrick_configuration:
+            self.sbrick_configuration["functions"] = dict()
+        self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrick_configuration["functions"],
+                                                     self.sbrick_configuration["channelConfiguration"])
         self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))
 
-        self.SBrickSequenceBox = SBrickSequenceBox(self.sbrickConfiguration)
+        self.SBrickSequenceBox = SBrickSequenceBox(self.sbrick_configuration)
         self.notebook.append_page(self.SBrickSequenceBox, Gtk.Label("Sequence"))
 
         self.show_all()
 
-    def disconnect(self):
-        if self.sbrickCommunications:
-            self.sbrickCommunications.disconnect()
+    def dict_changed(self, dict, key):
+        if dict == self.sbrick_communications_store and key == self.sbrick_configuration["addr"]:
+            if self.sbrick_configuration["addr"] in self.sbrick_communications_store:
+
+                self.sbrick_communications = self.sbrick_communications_store[self.sbrick_configuration["addr"]]
+
+                for channelNumber in range(4):
+                    sb = self.sbrick_configuration["channelConfiguration"][channelNumber]
+                    self.sbrick_communications.set_channel_config_id(channelNumber, sb["id"])
+
+                self.handler_ids.append(
+                    self.sbrick_communications.connect('sbrick_connected', self.on_sbrick_connected))
+                self.handler_ids.append(
+                    self.sbrick_communications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error))
+                self.handler_ids.append(
+                    self.sbrick_communications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok))
+            else:
+                self.set_child_communications(None)
+                for id in self.handler_ids:
+                    self.sbrick_communications.disconnect(id)
+                self.sbrick_communications = None
+                self.handler_ids.clear()
+
+    def disconnect_sbrick(self):
+        if self.sbrick_communications:
+            self.sbrick_communications.disconnect_sbrick()
 
     def get_sbrick_communications(self):
-        return self.sbrickCommunications
+        return self.sbrick_communications
 
     def get_connected(self):
-        return self.sbrickCommunications is not None
+        return self.sbrick_communications is not None
 
     def set_password_owner(self, password):
         self.password_owner = password
@@ -96,62 +123,52 @@ class SBrickBox(Gtk.Box):
         self.password_guest = password
 
     def write_owner_password(self):
-        if self.sbrickCommunications is not None:
-            self.sbrickCommunications.set_owner_password(self.password_owner)
+        if self.sbrick_communications is not None:
+            self.sbrick_communications.set_owner_password(self.password_owner)
 
     def write_guest_password(self):
-        if self.sbrickCommunications is not None:
-            self.sbrickCommunications.set_guest_password(self.password_guest)
+        if self.sbrick_communications is not None:
+            self.sbrick_communications.set_guest_password(self.password_guest)
 
     def clear_owner_password(self):
-        if self.sbrickCommunications is not None:
-            self.sbrickCommunications.clear_owner_password()
+        if self.sbrick_communications is not None:
+            self.sbrick_communications.clear_owner_password()
 
     def clear_guest_password(self):
-        if self.sbrickCommunications is not None:
-            self.sbrickCommunications.clear_guest_password()
+        if self.sbrick_communications is not None:
+            self.sbrick_communications.clear_guest_password()
 
     # noinspection PyUnusedLocal
     def on_button_settings_clicked(self, widget):
-        dialog = SBrickConfigureDialog(self.get_toplevel(), self.sbrickConfiguration)
+        dialog = SBrickConfigureDialog(self.get_toplevel(), self.sbrick_configuration)
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             self.show_channels()
-            self.labelBrickName.set_text("SBrick: %s" % self.sbrickConfiguration["name"])
-            self.labelBrickAddress.set_text("Address: %s" % self.sbrickConfiguration["addr"])
+            self.labelBrickName.set_text("SBrick: %s" % self.sbrick_configuration["name"])
+            self.labelBrickAddress.set_text("Address: %s" % self.sbrick_configuration["addr"])
 
         dialog.destroy()
 
     # noinspection PyUnusedLocal
     def on_button_connect_clicked(self, widget):
         self.buttonConnect.set_sensitive(False)
-        if self.sbrickCommunications is None:
+        if self.sbrick_communications is None:
             self.buttonConnect.set_label("Connecting...")
-            self.sbrickCommunications = SBrickCommunications(self.sbrickConfiguration["addr"])
-            for channelNumber in range(4):
-                sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
-                self.sbrickCommunications.set_channel_config_id(channelNumber, sb["id"])
-
-            self.sbrickCommunications.connect('sbrick_connected', self.on_sbrick_connected)
-            self.sbrickCommunications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error)
-            self.sbrickCommunications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok)
-            self.sbrickCommunications.connect('sbrick_channel_stop', self.on_sbrick_channel_stop)
-
-            self.sbrickCommunications.connect_to_sbrick(self.password_owner)
+            self.sbrick_communications_store[self.sbrick_configuration["addr"]] = SBrickCommunications(
+                self.sbrick_configuration["addr"])
+            self.sbrick_communications.connect_to_sbrick(self.password_owner)
 
         else:
             self.buttonConnect.set_label("Disconnecting...")
-            self.sbrickCommunications.disconnect()
-            self.set_child_communications(None)
+            self.sbrick_communications.disconnect_sbrick()
 
     # noinspection PyUnusedLocal
     def on_button_estop_clicked(self, widget):
-        if self.sbrickCommunications is not None:
-            self.sbrickCommunications.stop_all()
+        if self.sbrick_communications is not None:
+            self.sbrick_communications.stop_all()
 
     def set_child_communications(self, sbrick):
-        self.sbrickCommunications = sbrick
-        for widget in self.currentSBrickChannels:
+        for widget in self.current_sbrick_channels:
             widget.set_sbrick(sbrick)
         self.SBrickInfoBox.set_sbrick(sbrick)
         self.SBrickFunctionsBox.set_sbrick(sbrick)
@@ -162,11 +179,11 @@ class SBrickBox(Gtk.Box):
         self.SBrickSequenceBox.write_configuration()
 
     def on_sbrick_connected(self, sbrick):
-        self.set_child_communications(sbrick)
         self.buttonConnect.set_label("Disconnect")
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(True)
         self.buttonSettings.set_sensitive(False)
+        self.set_child_communications(self.sbrick_communications)
         # for act in self.actions_connected:
         #     act.set_enabled(True)
 
@@ -177,23 +194,25 @@ class SBrickBox(Gtk.Box):
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(False)
         self.buttonSettings.set_sensitive(True)
+        del self.sbrick_communications_store[self.sbrick_configuration["addr"]]
 
         # for act in self.actions_connected:
         #     act.set_enabled(False)
 
-    def on_sbrick_disconnected_error(self, sbrick, message):
+    def on_sbrick_disconnected_error(self, sbrick_communications, message):
         self.set_child_communications(None)
         self.buttonConnect.set_label("Connect")
         self.buttonConnect.set_sensitive(True)
         self.buttonEStop.set_sensitive(False)
         self.buttonSettings.set_sensitive(True)
+        del self.sbrick_communications_store[self.sbrick_configuration["addr"]]
 
-        self.emit("show_message", sbrick.sBrickAddr, message, "SBrick has disconnected")
+        self.emit("show_message", sbrick_communications.sBrickAddr, message, "SBrick has disconnected")
         self.set_child_communications(None)
 
     # noinspection PyUnusedLocal
     def on_sbrick_channel_stop(self, sbrick, channel):
-        self.currentSBrickChannels[channel].stopped()
+        self.current_sbrick_channels[channel].stopped()
 
     def show_channels(self):
         children = self.channelBox.get_children()
@@ -202,14 +221,14 @@ class SBrickBox(Gtk.Box):
 
         for channelNumber in range(4):
             channel_box = None
-            sb = self.sbrickConfiguration["channelConfiguration"][channelNumber]
+            sb = self.sbrick_configuration["channelConfiguration"][channelNumber]
             cc = sb["type"]
             if cc == 'motor':
                 channel_box = SBrickMotorChannelBox(channelNumber, sb)
             elif cc == 'servo':
                 channel_box = SBrickServoChannelBox(channelNumber, sb)
             self.channelBox.pack_start(channel_box, False, False, 0)
-            self.currentSBrickChannels.append(channel_box)
+            self.current_sbrick_channels.append(channel_box)
 
         self.channelBox.show_all()
 

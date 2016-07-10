@@ -13,26 +13,27 @@ class SBrickSequencePlayer(threading.Thread, IdleObject):
     def __init__(self, sbrick_configuration, sbrick_communications):
         threading.Thread.__init__(self)
         IdleObject.__init__(self)
+        self.is_an_error = False
 
         self.sbrick_configuration = sbrick_configuration
         self.sbrick_communications = sbrick_communications
 
         self.next_event = threading.Event()
         self.next_event.clear()
+        self.handler_ids = []
 
-        self.sbrick_communications.connect('sbrick_connected', self.on_sbrick_connected)
-        self.sbrick_communications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error)
-        self.sbrick_communications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok)
-        self.sbrick_communications.connect('sbrick_channel_stop', self.on_sbrick_channel_stop)
-        self.sbrick_communications.connect('sbrick_drive_sent', self.on_sbrick_drive_sent)
+        self.handler_ids.append(self.sbrick_communications.connect('sbrick_connected', self.on_sbrick_connected))
+        self.handler_ids.append(
+            self.sbrick_communications.connect('sbrick_disconnected_error', self.on_sbrick_disconnected_error))
+        self.handler_ids.append(
+            self.sbrick_communications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok))
+        self.handler_ids.append(self.sbrick_communications.connect('sbrick_channel_stop', self.on_sbrick_channel_stop))
+        self.handler_ids.append(self.sbrick_communications.connect('sbrick_drive_sent', self.on_sbrick_drive_sent))
 
-    def __del__(self):
-        print("sequence player destroyed")
-        # self.sbrick_communications.disconnect('sbrick_connected')
-        # self.sbrick_communications.disconnect('sbrick_disconnected_error')
-        # self.sbrick_communications.disconnect('sbrick_disconnected_ok')
-        # self.sbrick_communications.disconnect('sbrick_channel_stop')
-        # self.sbrick_communications.disconnect('sbrick_drive_sent')
+    def cleanup(self):
+        # print("sequence player destroyed")
+        for id in self.handler_ids:
+            self.sbrick_communications.disconnect(id)
 
     def on_sbrick_connected(self, sbrick):
         pass
@@ -40,17 +41,17 @@ class SBrickSequencePlayer(threading.Thread, IdleObject):
     def on_sbrick_disconnected_ok(self, sbrick):
         pass
 
-    def on_sbrick_disconnected_error(self, sbrick, message):
-        pass
+    def on_sbrick_disconnected_error(self, sbrick_communications, message):
+        self.is_an_error = True
 
     # noinspection PyUnusedLocal,PyUnusedLocal
     def on_sbrick_channel_stop(self, sbrick, channel):
-        print("step channel stop")
+        # print("step channel stop")
         self.next_event.set()
 
     # noinspection PyUnusedLocal
     def on_sbrick_drive_sent(self, sbrick, channel, time):
-        print("drive sent ", channel, time)
+        # print("drive sent ", channel, time)
         if time <= 0:
             self.next_event.set()
 
@@ -82,6 +83,9 @@ class SBrickSequencePlayer(threading.Thread, IdleObject):
             if "off" in function:
                 off = function["off"]
 
+            if not self.sbrick_communications:
+                break
+
             if pwm > 0:
                 # drive
                 self.sbrick_communications.drive(channelname, pwm, reverse, time, off == "brake")
@@ -89,10 +93,15 @@ class SBrickSequencePlayer(threading.Thread, IdleObject):
                 # stop
                 self.sbrick_communications.stop(channelname, off == "brake")
 
+            if self.is_an_error:
+                break
             self.next_event.wait()
             self.next_event.clear()
-            print("delay ", delay_time)
+            if self.is_an_error:
+                break
             self.next_event.wait(delay_time / 1000.0)
+            if self.is_an_error:
+                break
             self.next_event.clear()
         self.emit('sequence_finished')
 

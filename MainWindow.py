@@ -3,6 +3,8 @@ import gi
 from PasswordDialog import PasswordDialog
 from SBrickBox import SBrickBox
 from SBrickConfigureDialog import SBrickConfigureDialog
+from SequencesBox import SequencesBox
+from ObservingDict import ObservingDict
 
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
@@ -12,6 +14,7 @@ from gi.repository import Gtk, GLib, Gio
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         self.config = kwargs.pop("config", None)
+        self.sbrick_communications_store = ObservingDict(dict())
 
         Gtk.ApplicationWindow.__init__(self, *args, **kwargs)
 
@@ -25,9 +28,12 @@ class MainWindow(Gtk.ApplicationWindow):
 
         if self.config is not None:
             for sbrick in self.config:
-                page = SBrickBox(sbrick)
+                page = SBrickBox(sbrick, self.sbrick_communications_store)
                 page.connect("show_message", self.on_show_message)
                 self.notebook.append_page(page, Gtk.Label(sbrick["name"]))
+
+        self.sequences_box = SequencesBox(self.config, self.sbrick_communications_store)
+        self.notebook.append_page(self.sequences_box, Gtk.Label("Sequences"))
 
         self.actions = []
         self.actions_connected = []
@@ -98,7 +104,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def on_delete_window(self, *args):
         for ch in self.notebook.get_children():
-            ch.disconnect()
+            ch.disconnect_sbrick()
         Gtk.main_quit(*args)
 
     def on_add_sbrick(self, action, param):

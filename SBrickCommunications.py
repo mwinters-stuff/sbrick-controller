@@ -280,7 +280,7 @@ class SBrickCommunications(threading.Thread, IdleObject):
                 #     self.emit("sbrick_disconnected_error",ex.message)
                 #     return False
 
-    def disconnect(self):
+    def disconnect_sbrick(self):
         with self.lock:
             self.stopFlag = True
 
