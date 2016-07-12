@@ -2,7 +2,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 # noinspection PyUnresolvedReferences,PyPep8
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 from SBrickSequencePlayer import SBrickSequencePlayer
 from SBrickCommunications import SBrickCommunications
 
@@ -57,10 +57,12 @@ class SequencePlayerBox(Gtk.Box):
         self.play(False)
 
     def play(self, from_player):
-        if from_player and self.checkPause.is_active():
+        if from_player and self.checkPause.get_active():
+            self.emit('sequence_finished')
             return
 
         if "sequence" not in self.sbrick_configuration or len(self.sbrick_configuration["sequence"]) == 0:
+            self.emit('sequence_finished')
             return
 
         if not self.sbrick_communications:
@@ -91,12 +93,18 @@ class SequencePlayerBox(Gtk.Box):
         self.sbrick_communications.connect('sbrick_disconnected_ok', self.on_sbrick_disconnected_ok)
         self.sbrick_communications.connect('sbrick_channel_stop', self.on_sbrick_channel_stop)
 
-        self.sbrick_communications.connect_to_sbrick(self.sbrick_configuration["ownerPassword"])
+        passwd = None
+        if "ownerPassword" in self.sbrick_configuration:
+            passwd = self.sbrick_configuration["ownerPassword"]
+
+        self.sbrick_communications.connect_to_sbrick(passwd)
 
     def on_sbrick_connected(self, sbrick):
         self.button_play.set_sensitive(True)
 
     def on_sbrick_disconnected_error(self, sbrick_communications, message):
+        self.checkPause.set_active(True)
+        self.on_sequence_finished(self.sequence_player)
         self.button_play.set_sensitive(True)
 
     def on_sbrick_disconnected_ok(self, sbrick):
@@ -155,11 +163,11 @@ class SequencesBox(Gtk.Box):
         self.action_stop_all.set_sensitive(True)
         self.playing = True
         self.playing_index = 0
-        self.play()
+        self.play_step()
 
     def play_step(self):
-        self.playing_sequence = self.content.get_row_at_index(self.playing_index).get_child_widget()
-        self.content.select_row(self.playing_sequence)
+        self.playing_sequence = self.content.get_row_at_index(self.playing_index).get_child()
+        self.content.select_row(self.content.get_row_at_index(self.playing_index))
         self.playing_sequence.play(True)
 
     def on_stop_all_clicked(self, widget):
@@ -168,6 +176,9 @@ class SequencesBox(Gtk.Box):
         self.playing = False
 
     def disconnect_sbrick(self):
+        pass
+
+    def write_configuration(self):
         pass
 
 

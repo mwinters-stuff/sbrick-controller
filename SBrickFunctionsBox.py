@@ -13,12 +13,17 @@ class FunctionGroupBox(Gtk.Frame):
         self.configuration = configuration
         self.channels = channels
 
+        vbox = Gtk.Box(self, orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox.set_homogeneous(False)
+        self.add(vbox)
+
+
         if "group" in configuration:
-            self.set_label(configuration["group"])
+            vbox.pack_start(Gtk.Label(configuration["group"]), False, True, 0)
 
         hbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         hbox.set_homogeneous(False)
-        self.add(hbox)
+        vbox.pack_start(hbox, False, True, 0)
 
         self.button_settings = Gtk.Button.new()
         self.button_settings.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_PREFERENCES, Gtk.IconSize.BUTTON))

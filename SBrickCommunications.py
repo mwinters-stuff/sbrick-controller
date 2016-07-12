@@ -192,7 +192,7 @@ class SBrickCommunications(threading.Thread, IdleObject):
 
             while not self.stopFlag:
                 if self.authenticated:
-                    if monotonic.monotonic() - monotime >= 0.1:
+                    if monotonic.monotonic() - monotime >= 0.05:
                         self.send_command()
                         monotime = monotonic.monotonic()
                     self.eventSend.wait(0.01)
@@ -270,11 +270,11 @@ class SBrickCommunications(threading.Thread, IdleObject):
             if len(drivecmd) > 1:
                 self.drivingLock.acquire()
                 self.characteristicRemote.write(drivecmd, True)
-                # self.print_hex_string("drive sent", drivecmd)
+                self.print_hex_string("drive sent", drivecmd)
 
             if len(brakecmd) > 1:
                 self.characteristicRemote.write(brakecmd, True)
-                # self.print_hex_string("brake sent", brakecmd)
+                self.print_hex_string("brake sent", brakecmd)
                 # return True
                 # except Exception as ex:
                 #     self.emit("sbrick_disconnected_error",ex.message)
