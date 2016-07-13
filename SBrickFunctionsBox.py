@@ -17,9 +17,10 @@ class FunctionGroupBox(Gtk.Frame):
         vbox.set_homogeneous(False)
         self.add(vbox)
 
-
+        self.label = Gtk.Label()
+        vbox.pack_start(self.label, False, True, 0)
         if "group" in configuration:
-            vbox.pack_start(Gtk.Label(configuration["group"]), False, True, 0)
+            self.label.set_text(configuration["group"])
 
         hbox = Gtk.Box(self, orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         hbox.set_homogeneous(False)
@@ -88,7 +89,8 @@ class FunctionGroupBox(Gtk.Frame):
                 button.connect("clicked", self.on_button_clicked)
                 button.brick_function = func
                 self.hbox.pack_start(button, True, True, 0)
-            self.hbox.show_all()
+            self.label.set_text(self.configuration["group"])
+            self.show_all()
             dialog.destroy()
             return True
         else:

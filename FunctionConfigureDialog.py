@@ -81,7 +81,7 @@ class FunctionOptions(Gtk.Box):
         self.pack_start(self.checkTime, False, True, 0)
         self.checkTime.connect("toggled", self.on_time_toggled)
 
-        self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
+        self.timeAdjustment = Gtk.Adjustment(1000, -1, 30000, 100, 1000, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
         self.pack_start(self.spinTime, False, True, 0)
         self.spinTime.set_sensitive(False)

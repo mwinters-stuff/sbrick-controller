@@ -1,296 +1,267 @@
 [
   {
+    "name": "Display Brick",
+    "addr": "00:07:80:BD:1C:3A",
     "sequence": [
       {
-        "delay_time": 30000.0,
         "function_group": "MiniGoRound",
+        "delay_time": 30000.0,
         "function": "Go"
       },
       {
-        "delay_time": 1000.0,
         "function_group": "MiniGoRound",
+        "delay_time": 1000.0,
         "function": "Stop"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Radial Engine",
+        "delay_time": 10000.0,
         "function": "Slow Speed"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Radial Engine",
+        "delay_time": 10000.0,
         "function": "Medium S"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Radial Engine",
+        "delay_time": 10000.0,
         "function": "Full Speed"
       },
       {
-        "delay_time": 2000.0,
         "function_group": "Radial Engine",
+        "delay_time": 2000.0,
         "function": "Slow Speed"
       },
       {
-        "delay_time": 1000.0,
         "function_group": "Radial Engine",
+        "delay_time": 1000.0,
         "function": "Stop"
       },
       {
-        "delay_time": 5000.0,
         "function_group": "Fingers",
+        "delay_time": 5000.0,
         "function": "Slow"
       },
       {
-        "delay_time": 5000.0,
         "function_group": "Fingers",
+        "delay_time": 5000.0,
         "function": "Fast"
       },
       {
-        "delay_time": 2000.0,
         "function_group": "Fingers",
+        "delay_time": 2000.0,
         "function": "Slow"
       },
       {
-        "delay_time": 980.0,
         "function_group": "Fingers",
+        "delay_time": 980.0,
         "function": "Stop"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Aeroplane",
+        "delay_time": 10000.0,
         "function": "Start Slow"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Aeroplane",
+        "delay_time": 10000.0,
         "function": "Medium"
       },
       {
-        "delay_time": 10000.0,
         "function_group": "Aeroplane",
+        "delay_time": 10000.0,
         "function": "Full Speed"
       },
       {
-        "delay_time": 2000.0,
         "function_group": "Aeroplane",
+        "delay_time": 2000.0,
         "function": "Medium"
       },
       {
-        "delay_time": 5000.0,
         "function_group": "Aeroplane",
+        "delay_time": 5000.0,
         "function": "Start Slow"
       },
       {
-        "delay_time": 20000.0,
         "function_group": "Aeroplane",
+        "delay_time": 20000.0,
         "function": "Stop"
       }
     ],
-    "name": "Display Brick",
-    "addr": "00:07:80:BD:1C:3A",
-    "channelConfiguration": [
-      {
-        "type": "motor",
-        "name": "Mini Go Round",
-        "id": "m1"
-      },
-      {
-        "type": "motor",
-        "name": "Radial Engine",
-        "id": "m2"
-      },
-      {
-        "type": "motor",
-        "name": "Aeroplane",
-        "id": "m3"
-      },
-      {
-        "type": "motor",
-        "name": "Fingers",
-        "id": "m4"
-      }
-    ],
+    "ownerPassword": "abcdefgh",
     "functions": [
       {
+        "group": "Radial Engine",
         "functions": [
           {
-            "pwm": 90,
-            "off": "coast",
             "label": "Slow Speed",
-            "channel": "m2",
+            "time": -1,
+            "off": "coast",
             "reverse": "false",
-            "time": -1
+            "pwm": 90,
+            "channel": "m2"
           },
           {
-            "pwm": 150,
-            "off": "coast",
             "label": "Medium S",
-            "channel": "m2",
+            "time": -1,
+            "off": "coast",
             "reverse": "false",
-            "time": -1
+            "pwm": 150,
+            "channel": "m2"
           },
           {
-            "pwm": 255,
-            "off": "coast",
             "label": "Full Speed",
-            "channel": "m2",
+            "time": -1,
+            "off": "coast",
             "reverse": "false",
-            "time": -1
+            "pwm": 255,
+            "channel": "m2"
           },
           {
             "off": "coast",
             "label": "Stop",
             "channel": "m2"
           }
-        ],
-        "group": "Radial Engine"
+        ]
       },
       {
+        "group": "Fingers",
         "functions": [
           {
-            "pwm": 150,
-            "off": "coast",
             "label": "Slow",
-            "channel": "m4",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 150,
+            "channel": "m4"
           },
           {
-            "pwm": 255,
-            "off": "coast",
             "label": "Fast",
-            "channel": "m4",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 255,
+            "channel": "m4"
           },
           {
             "off": "brake",
             "label": "Stop",
             "channel": "m4"
           }
-        ],
-        "group": "Fingers"
+        ]
       },
       {
+        "group": "MiniGoRound",
         "functions": [
           {
-            "pwm": 255,
-            "off": "coast",
             "label": "Go",
-            "channel": "m1",
+            "time": -1,
+            "off": "coast",
             "reverse": "false",
-            "time": -1
+            "pwm": 255,
+            "channel": "m1"
           },
           {
             "off": "coast",
             "label": "Stop",
             "channel": "m1"
           }
-        ],
-        "group": "MiniGoRound"
+        ]
       },
       {
+        "group": "Aeroplane",
         "functions": [
           {
-            "pwm": 90,
-            "off": "coast",
             "label": "Start Slow",
-            "channel": "m3",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 90,
+            "channel": "m3"
           },
           {
-            "pwm": 160,
-            "off": "coast",
             "label": "Medium",
-            "channel": "m3",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 160,
+            "channel": "m3"
           },
           {
-            "pwm": 255,
-            "off": "coast",
             "label": "Full Speed",
-            "channel": "m3",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 255,
+            "channel": "m3"
           },
           {
             "off": "coast",
             "label": "Stop",
             "channel": "m3"
           }
-        ],
-        "group": "Aeroplane"
+        ]
       }
     ],
-    "ownerPassword": "abcdefgh"
+    "channelConfiguration": [
+      {
+        "name": "Mini Go Round",
+        "id": "m1",
+        "type": "motor"
+      },
+      {
+        "name": "Radial Engine",
+        "id": "m2",
+        "type": "motor"
+      },
+      {
+        "name": "Aeroplane",
+        "id": "m3",
+        "type": "motor"
+      },
+      {
+        "name": "Fingers",
+        "id": "m4",
+        "type": "motor"
+      }
+    ]
   },
   {
-    "sequence": [
+    "channelConfiguration": [
       {
-        "delay_time": 5000.0,
-        "function": "Spin Slow",
-        "function_group": "Rotors"
+        "name": "Rotors",
+        "id": "rotors",
+        "type": "motor"
       },
       {
-        "delay_time": 5000.0,
-        "function": "Ramp Up",
-        "function_group": "Rear Ramp"
+        "name": "Hook",
+        "id": "hook",
+        "type": "motor"
       },
       {
-        "delay_time": 5000.0,
-        "function": "Spin",
-        "function_group": "Rotors"
+        "name": "Rear Ramp",
+        "id": "ramp",
+        "type": "motor"
       },
       {
-        "delay_time": 5000.0,
-        "function": "Open",
-        "function_group": "Bay Doors"
-      },
-      {
-        "delay_time": 10000.0,
-        "function": "Hook Down",
-        "function_group": "Hook"
-      },
-      {
-        "delay_time": 1000.0,
-        "function": "Hook Up",
-        "function_group": "Hook"
-      },
-      {
-        "delay_time": 5000.0,
-        "function": "Close",
-        "function_group": "Bay Doors"
-      },
-      {
-        "delay_time": 5000.0,
-        "function": "Spin Slow",
-        "function_group": "Rotors"
-      },
-      {
-        "delay_time": 5000.0,
-        "function": "Ramp Down",
-        "function_group": "Rear Ramp"
-      },
-      {
-        "delay_time": 20000.0,
-        "function": "Stop",
-        "function_group": "Rotors"
+        "name": "Bay Doors",
+        "id": "bay",
+        "type": "motor"
       }
     ],
     "name": "Helicopter",
     "functions": [
       {
+        "group": "Rotors",
         "functions": [
           {
-            "pwm": 255,
-            "off": "coast",
             "label": "Spin",
-            "channel": "rotors",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 255,
+            "channel": "rotors"
           },
           {
             "off": "coast",
@@ -298,156 +269,332 @@
             "channel": "rotors"
           },
           {
-            "pwm": 110,
-            "off": "coast",
             "label": "Spin Slow",
-            "channel": "rotors",
+            "time": -1,
+            "off": "coast",
             "reverse": "true",
-            "time": -1
+            "pwm": 110,
+            "channel": "rotors"
           }
-        ],
-        "group": "Rotors"
+        ]
       },
       {
+        "group": "Hook",
         "functions": [
           {
-            "pwm": 255,
-            "off": "brake",
             "label": "Hook Down",
-            "channel": "hook",
+            "time": 9500,
+            "off": "brake",
             "reverse": "false",
-            "time": 9500
-          },
-          {
             "pwm": 255,
-            "off": "brake",
+            "channel": "hook"
+          },
+          {
             "label": "Hook Up",
-            "channel": "hook",
+            "time": 9500,
+            "off": "brake",
             "reverse": "true",
-            "time": 9500
+            "pwm": 255,
+            "channel": "hook"
           }
-        ],
-        "group": "Hook"
+        ]
       },
       {
+        "group": "Rear Ramp",
         "functions": [
           {
-            "pwm": 100,
-            "off": "brake",
             "label": "Ramp Down",
-            "channel": "ramp",
+            "time": 2500,
+            "off": "brake",
             "reverse": "true",
-            "time": 2500
+            "pwm": 100,
+            "channel": "ramp"
           },
           {
-            "pwm": 100,
-            "off": "brake",
             "label": "Ramp Up",
-            "channel": "ramp",
+            "time": 2500,
+            "off": "brake",
             "reverse": "false",
-            "time": 2500
+            "pwm": 100,
+            "channel": "ramp"
           }
-        ],
-        "group": "Rear Ramp"
+        ]
       },
       {
+        "group": "Bay Doors",
         "functions": [
           {
-            "pwm": 100,
-            "off": "brake",
             "label": "Open",
-            "channel": "bay",
+            "time": 2500,
+            "off": "brake",
             "reverse": "true",
-            "time": 2500
+            "pwm": 100,
+            "channel": "bay"
           },
           {
-            "pwm": 100,
-            "off": "brake",
             "label": "Close",
-            "channel": "bay",
+            "time": 2500,
+            "off": "brake",
             "reverse": "false",
-            "time": 2500
+            "pwm": 100,
+            "channel": "bay"
           }
-        ],
-        "group": "Bay Doors"
+        ]
       }
     ],
-    "channelConfiguration": [
+    "sequence": [
       {
-        "type": "motor",
-        "name": "Rotors",
-        "id": "rotors"
+        "function_group": "Rotors",
+        "delay_time": 5000.0,
+        "function": "Spin Slow"
       },
       {
-        "type": "motor",
-        "name": "Hook",
-        "id": "hook"
+        "function_group": "Rear Ramp",
+        "delay_time": 5000.0,
+        "function": "Ramp Up"
       },
       {
-        "type": "motor",
-        "name": "Rear Ramp",
-        "id": "ramp"
+        "function_group": "Rotors",
+        "delay_time": 5000.0,
+        "function": "Spin"
       },
       {
-        "type": "motor",
-        "name": "Bay Doors",
-        "id": "bay"
+        "function_group": "Bay Doors",
+        "delay_time": 5000.0,
+        "function": "Open"
+      },
+      {
+        "function_group": "Hook",
+        "delay_time": 10000.0,
+        "function": "Hook Down"
+      },
+      {
+        "function_group": "Hook",
+        "delay_time": 1000.0,
+        "function": "Hook Up"
+      },
+      {
+        "function_group": "Bay Doors",
+        "delay_time": 5000.0,
+        "function": "Close"
+      },
+      {
+        "function_group": "Rotors",
+        "delay_time": 5000.0,
+        "function": "Spin Slow"
+      },
+      {
+        "function_group": "Rear Ramp",
+        "delay_time": 5000.0,
+        "function": "Ramp Down"
+      },
+      {
+        "function_group": "Rotors",
+        "delay_time": 20000.0,
+        "function": "Stop"
       }
     ],
     "addr": "00:07:80:BD:21:A4"
   },
   {
-    "sequence": [],
-    "name": "Loader",
-    "functions": {},
     "channelConfiguration": [
       {
-        "type": "motor",
         "name": "Drive",
-        "id": "drive"
+        "id": "drive",
+        "type": "motor"
       },
       {
-        "type": "motor",
         "name": "Bucket Tip",
-        "id": "bucket"
+        "id": "bucket",
+        "type": "motor"
       },
       {
-        "type": "servo",
         "name": "Steering",
-        "id": "steer"
+        "id": "steer",
+        "type": "servo"
       },
       {
-        "type": "motor",
         "name": "Bucket Raise",
-        "id": "raise"
+        "id": "raise",
+        "type": "motor"
       }
     ],
+    "name": "Loader",
+    "functions": [],
+    "sequence": [],
     "addr": "00:07:80:BD:23:BE"
   },
   {
-    "sequence": [],
-    "name": "Crane",
-    "functions": {},
     "channelConfiguration": [
       {
-        "type": "motor",
         "name": "Drive",
-        "id": "drive"
+        "id": "drive",
+        "type": "motor"
       },
       {
-        "type": "motor",
         "name": "Rotate Body",
-        "id": "rotate"
+        "id": "rotate",
+        "type": "motor"
       },
       {
-        "type": "motor",
         "name": "Lift",
-        "id": "lift"
+        "id": "lift",
+        "type": "motor"
       },
       {
-        "type": "motor",
         "name": "Boom",
-        "id": "boom"
+        "id": "boom",
+        "type": "motor"
+      }
+    ],
+    "name": "Crane",
+    "functions": [
+      {
+        "group": "Rotate",
+        "functions": [
+          {
+            "label": "CW Half",
+            "time": 2500,
+            "off": "coast",
+            "reverse": "true",
+            "pwm": 120,
+            "channel": "rotate"
+          },
+          {
+            "label": "CW Full",
+            "time": 4000,
+            "off": "coast",
+            "reverse": "true",
+            "pwm": 120,
+            "channel": "rotate"
+          },
+          {
+            "label": "AC Half",
+            "time": 2000,
+            "off": "coast",
+            "reverse": "false",
+            "pwm": 120,
+            "channel": "rotate"
+          },
+          {
+            "label": "AC Full",
+            "time": 5000,
+            "off": "coast",
+            "reverse": "false",
+            "pwm": 120,
+            "channel": "rotate"
+          }
+        ]
+      },
+      {
+        "group": "Boom",
+        "functions": [
+          {
+            "label": "Raise",
+            "time": 5000,
+            "off": "coast",
+            "reverse": "false",
+            "pwm": 255,
+            "channel": "boom"
+          },
+          {
+            "label": "Lower",
+            "time": 5000,
+            "off": "coast",
+            "reverse": "true",
+            "pwm": 255,
+            "channel": "boom"
+          }
+        ]
+      },
+      {
+        "group": "Grabber",
+        "functions": [
+          {
+            "label": "Down",
+            "time": 10000,
+            "off": "coast",
+            "reverse": "false",
+            "pwm": 255,
+            "channel": "lift"
+          },
+          {
+            "label": "Up",
+            "time": 10000,
+            "off": "coast",
+            "reverse": "true",
+            "pwm": 255,
+            "channel": "lift"
+          }
+        ]
+      },
+      {
+        "group": "Walk",
+        "functions": [
+          {
+            "label": "Forward",
+            "time": 2000,
+            "off": "coast",
+            "reverse": "false",
+            "pwm": 255,
+            "channel": "drive"
+          },
+          {
+            "label": "Reverse",
+            "time": 2000,
+            "off": "coast",
+            "reverse": "true",
+            "pwm": 255,
+            "channel": "drive"
+          }
+        ]
+      }
+    ],
+    "sequence": [
+      {
+        "function_group": "Rotate",
+        "delay_time": 1000.0,
+        "function": "CW Half"
+      },
+      {
+        "function_group": "Boom",
+        "delay_time": 1000.0,
+        "function": "Lower"
+      },
+      {
+        "function_group": "Grabber",
+        "delay_time": 1000.0,
+        "function": "Down"
+      },
+      {
+        "function_group": "Walk",
+        "delay_time": 1000.0,
+        "function": "Forward"
+      },
+      {
+        "function_group": "Grabber",
+        "delay_time": 1000.0,
+        "function": "Up"
+      },
+      {
+        "function_group": "Boom",
+        "delay_time": 1000.0,
+        "function": "Raise"
+      },
+      {
+        "function_group": "Rotate",
+        "delay_time": 1000.0,
+        "function": "AC Full"
+      },
+      {
+        "function_group": "Walk",
+        "delay_time": 1000.0,
+        "function": "Reverse"
+      },
+      {
+        "function_group": "Rotate",
+        "delay_time": 1000.0,
+        "function": "CW Half"
       }
     ],
     "addr": "00:07:80:bd:23:60"

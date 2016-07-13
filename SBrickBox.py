@@ -73,7 +73,7 @@ class SBrickBox(Gtk.Box):
         self.show_channels()
 
         if "functions" not in self.sbrick_configuration:
-            self.sbrick_configuration["functions"] = dict()
+            self.sbrick_configuration["functions"] = []
         self.SBrickFunctionsBox = SBrickFunctionsBox(self.sbrick_configuration["functions"],
                                                      self.sbrick_configuration["channelConfiguration"])
         self.notebook.append_page(self.SBrickFunctionsBox, Gtk.Label("Functions"))

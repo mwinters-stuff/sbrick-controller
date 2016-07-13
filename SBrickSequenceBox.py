@@ -186,6 +186,10 @@ class SBrickSequenceBox(Gtk.Box):
                 newindex = index - 1
                 widget = rowup.get_child()
 
+                seqconfig = self.sbrickConfiguration["sequence"][index]
+                self.sbrickConfiguration["sequence"].remove(seqconfig)
+                self.sbrickConfiguration["sequence"].insert(newindex, seqconfig)
+
                 self.sequenceSteps.remove(widget)
                 self.sequenceSteps.insert(newindex, widget)
                 self.content.remove(rowup)
@@ -201,6 +205,10 @@ class SBrickSequenceBox(Gtk.Box):
             if index < len(self.sequenceSteps) - 1:
                 newindex = index + 1
                 widget = rowdown.get_child()
+
+                seqconfig = self.sbrickConfiguration["sequence"][index]
+                self.sbrickConfiguration["sequence"].remove(seqconfig)
+                self.sbrickConfiguration["sequence"].insert(newindex, seqconfig)
 
                 self.sequenceSteps.remove(widget)
                 self.sequenceSteps.insert(newindex, widget)

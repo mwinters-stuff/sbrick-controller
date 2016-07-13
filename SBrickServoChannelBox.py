@@ -61,7 +61,7 @@ class SBrickServoChannelBox(Gtk.Frame):
         self.vbox.add(self.checkTime)
         self.checkTime.connect("toggled", self.on_time_toggled)
 
-        self.timeAdjustment = Gtk.Adjustment(1000, -1, 10000, 10, 100, 0.0)
+        self.timeAdjustment = Gtk.Adjustment(1000, -1, 30000, 100, 1000, 0.0)
         self.spinTime = Gtk.SpinButton.new(self.timeAdjustment, 10, 0)
         # self.vbox.pack_start(self.spinTime, False, False, 0)
         self.vbox.add(self.spinTime)
